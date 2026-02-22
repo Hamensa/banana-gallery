@@ -141,8 +141,8 @@
                 alert("보안 암호가 일치하지 않습니다.");
                 return;
             }
-            if (!file || !title || !promptStr) {
-                alert("이미지와 주요 항목(제목, 프롬프트)을 모두 입력해주세요.");
+            if (!title || !promptStr) {
+                alert("제목과 프롬프트를 모두 입력해주세요.");
                 return;
             }
 
@@ -150,20 +150,24 @@
             try {
                 if (!supabase) throw new Error("데이터베이스(Supabase)가 연결되지 않았습니다.");
 
-                // 1. 이미지 업로드
-                const ext = file.name.split('.').pop();
-                const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
-                const { error: uploadError } = await supabase.storage
-                    .from('images')
-                    .upload(`prompts/${fileName}`, file, { cacheControl: '3600', upsert: false });
+                let imageUrl = "https://via.placeholder.com/500?text=No+Image";
 
-                if (uploadError) throw uploadError;
+                if (file) {
+                    // 1. 이미지 업로드
+                    const ext = file.name.split('.').pop();
+                    const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
+                    const { error: uploadError } = await supabase.storage
+                        .from('images')
+                        .upload(`prompts/${fileName}`, file, { cacheControl: '3600', upsert: false });
 
-                // 2. 업로드된 이미지 URL 가져오기
-                const { data: publicUrlData } = supabase.storage
-                    .from('images')
-                    .getPublicUrl(`prompts/${fileName}`);
-                const imageUrl = publicUrlData.publicUrl;
+                    if (uploadError) throw uploadError;
+
+                    // 2. 업로드된 이미지 URL 가져오기
+                    const { data: publicUrlData } = supabase.storage
+                        .from('images')
+                        .getPublicUrl(`prompts/${fileName}`);
+                    imageUrl = publicUrlData.publicUrl;
+                }
 
                 // 3. DB에 데이터 삽입
                 const { error: insertError } = await supabase
