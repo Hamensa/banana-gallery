@@ -200,6 +200,19 @@ function initUI() {
         });
     }
 
+    // Mobile Search Toggle
+    const searchToggleBtn = document.getElementById('search-toggle-btn');
+    const searchWrapper = document.querySelector('.search-input-wrapper');
+    if (searchToggleBtn && searchWrapper) {
+        searchToggleBtn.onclick = () => {
+            searchWrapper.classList.toggle('open');
+            if (searchWrapper.classList.contains('open')) {
+                const searchInput = document.getElementById('search-input');
+                if (searchInput) searchInput.focus();
+            }
+        };
+    }
+
     // Close modal when clicking X
     const modalCloseBtn = document.getElementById('modal-close');
     if (modalCloseBtn) {
@@ -261,13 +274,8 @@ function showDetail(encoded) {
 
         copyBtn.onclick = () => {
             navigator.clipboard.writeText(p.prompt).then(() => {
-                copyBtn.innerText = "복사되었습니다!";
-                copyBtn.style.background = "#191f28";
-
-                setTimeout(() => {
-                    copyBtn.innerText = "프롬프트 복사";
-                    copyBtn.style.background = "#3182f6";
-                }, 2000);
+                showToast("프롬프트가 복사되었습니다!");
+                closeModal();
             }).catch(err => {
                 console.error("Failed to copy!", err);
             });
@@ -277,6 +285,27 @@ function showDetail(encoded) {
     // Set display flex to keep modal layout structure
     modal.style.display = "flex";
     document.body.style.overflow = "hidden";
+}
+
+// --- Toast Notification ---
+function showToast(msg) {
+    const toast = document.getElementById('toast');
+    if (!toast) return;
+    toast.innerText = msg;
+    toast.style.display = "block";
+
+    // Animate in
+    requestAnimationFrame(() => {
+        toast.style.bottom = "40px";
+        toast.style.opacity = "1";
+    });
+
+    // Animate out
+    setTimeout(() => {
+        toast.style.bottom = "-50px";
+        toast.style.opacity = "0";
+        setTimeout(() => { toast.style.display = "none"; }, 400); // Wait for transition
+    }, 2500);
 }
 
 function closeModal() {

@@ -14,6 +14,19 @@
         <p class="subtitle">데이터베이스 매니지먼트</p>
     </header>
 
+    <!-- Admin Login Overlay -->
+    <div id="login-overlay"
+        style="position: fixed; inset: 0; z-index: 9999; background: var(--bg); display: flex; justify-content: center; align-items: center; flex-direction: column; padding: 20px;">
+        <h2 style="font-family: 'Outfit'; font-size: 40px; margin-bottom: 16px; color: var(--gray-900);">Admin Portal
+        </h2>
+        <p style="color: var(--gray-600); margin-bottom: 40px;">관리자 전용 구역입니다. 접근 암호를 입력하세요.</p>
+        <div style="display: flex; gap: 12px; width: 100%; max-width: 400px;">
+            <input type="password" id="login-pw-input" class="input-field" placeholder="Secret Key"
+                style="margin-bottom: 0;">
+            <button class="submit-btn" style="width: auto; padding: 0 32px;" onclick="checkAdminLogin()">Enter</button>
+        </div>
+    </div>
+
     <main class="container">
         <!-- Upload Card -->
         <div class="admin-card">
@@ -48,13 +61,22 @@
                     </select>
                 </div>
                 <div>
-                    <label class="input-label">태그 (숨표 구분)</label>
-                    <input type="text" id="p-tags" class="input-field" placeholder="Design, 3D">
+                    <label class="input-label">태그 (여러 개 선택 가능)</label>
+                    <div class="chip-container" id="admin-tags-container">
+                        <div class="chip" onclick="toggleTag(this, 'Design')">Design</div>
+                        <div class="chip" onclick="toggleTag(this, '3D')">3D 아트</div>
+                        <div class="chip" onclick="toggleTag(this, 'Portrait')">인물/패션</div>
+                        <div class="chip" onclick="toggleTag(this, 'Art')">예술/일러스트</div>
+                        <div class="chip" onclick="toggleTag(this, 'Architecture')">건축/공간</div>
+                        <div class="chip" onclick="toggleTag(this, 'Cyberpunk')">사이버펑크</div>
+                        <div class="chip" onclick="toggleTag(this, 'Cinematic')">시네마틱</div>
+                        <div class="chip" onclick="toggleTag(this, 'Minimalist')">미니멀리즘</div>
+                    </div>
                 </div>
             </div>
 
-            <label class="input-label">시크릿 키</label>
-            <input type="password" id="pw" class="input-field" placeholder="암호를 입력하세요">
+            <!-- 시크릿 키는 로그인에서 확인했으나, 이중 보안 겸 파라미터 유지를 위해 숨긴 필드로 세팅 -->
+            <input type="hidden" id="pw" value="">
 
             <button class="submit-btn" onclick="submitPrompt()">저장하기</button>
         </div>
@@ -97,11 +119,42 @@
                     return;
                 }
                 subClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                loadList();
+
+                // 엔터키 로그인 지원
+                document.getElementById('login-pw-input').addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') checkAdminLogin();
+                });
             } catch (err) {
                 alert("🛑 초기화 중 에러 발생: " + err.message);
             }
         });
+
+        // == [전역 함수 구역] == //
+
+        // 로그인 체크
+        window.checkAdminLogin = function () {
+            const inputPw = document.getElementById('login-pw-input').value;
+            if (inputPw === SECRET) {
+                document.getElementById('login-overlay').style.display = 'none';
+                document.getElementById('pw').value = inputPw; // 실제 폼 제출용 히든 필드에 저장
+                loadList(); // 로그인 성공 시에만 리스트 로드
+            } else {
+                alert("❌ 접근 권한이 없습니다. 암호를 확인하세요.");
+            }
+        };
+
+        // 태그 토글 로직
+        window.selectedTags = [];
+        window.toggleTag = function (element, tagValue) {
+            element.classList.toggle('active');
+            if (element.classList.contains('active')) {
+                if (!window.selectedTags.includes(tagValue)) {
+                    window.selectedTags.push(tagValue);
+                }
+            } else {
+                window.selectedTags = window.selectedTags.filter(t => t !== tagValue);
+            }
+        };
 
         // == [전역 함수 구역] == //
         // HTML의 onclick 속성에서 직접 호출할 수 있도록 명시적으로 전역(window) 객체에 할당합니다.
@@ -179,11 +232,10 @@
                 const titleInput = document.getElementById('p-title');
                 const textInput = document.getElementById('p-text');
                 const modelInput = document.getElementById('p-model');
-                const tagsInput = document.getElementById('p-tags');
                 const pwInput = document.getElementById('pw');
 
                 // HTML 요소 존재 확인
-                if (!titleInput || !textInput || !pwInput || !fileInput || !modelInput || !tagsInput) {
+                if (!titleInput || !textInput || !pwInput || !fileInput || !modelInput) {
                     alert("🛑 시스템: 화면에서 입력 칸을 찾을 수 없습니다.");
                     return;
                 }
@@ -193,12 +245,7 @@
                 const promptStr = textInput.value.trim();
                 const modelStr = modelInput.value;
                 const pw = pwInput.value.trim();
-
-                let tagsStr = tagsInput.value.trim();
-                let tagsArray = [];
-                if (tagsStr) {
-                    tagsArray = tagsStr.split(',').map(function (t) { return t.trim(); }).filter(function (t) { return t !== ""; });
-                }
+                const tagsArray = window.selectedTags; // 선택된 태그 전역 배열 직접 사용
 
                 if (pw !== SECRET) {
                     alert("❌ 보안 암호가 일치하지 않습니다.");
@@ -255,9 +302,10 @@
                 // 폼 초기화
                 titleInput.value = '';
                 textInput.value = '';
-                tagsInput.value = '';
-                pwInput.value = '';
                 fileInput.value = '';
+                window.selectedTags = [];
+                document.querySelectorAll('#admin-tags-container .chip').forEach(c => c.classList.remove('active'));
+
                 document.getElementById('preview-img').style.display = 'none';
                 document.getElementById('file-label').innerText = '이미지 파일을 드래그하거나 클릭하여 선택하세요';
 

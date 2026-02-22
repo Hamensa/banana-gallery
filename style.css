@@ -2,18 +2,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@200;400;700;900&display=swap');
 
 :root {
-    --bg: #ffffff;
-    --gray-50: #f9fafb;
-    --gray-100: #f2f4f6;
-    --gray-200: #e5e8eb;
-    --gray-600: #4e5968;
-    --gray-700: #333d4b;
-    --gray-900: #191f28;
-    --accent: #3182f6;
-    --banana: #FFE135;
+    --bg: #09090b; /* 극도의 깊은 블랙 */
+    --gray-50: #121214;
+    --gray-100: #18181b;
+    --gray-200: #27272a;
+    --gray-600: #a1a1aa;
+    --gray-700: #d4d4d8;
+    --gray-900: #fafafa;
+    --accent: #FFE135; /* 바나나 골드 */
+    --accent-hover: #e5c92f;
     --font-main: 'Pretendard', 'Outfit', sans-serif;
-    --radius: 20px;
-    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    --radius: 24px;
+    --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); /* 더 고급스럽고 부드러운 텐션 */
 }
 
 * {
@@ -24,11 +24,12 @@
 }
 
 body {
-    background-color: var(--gray-50);
+    background-color: var(--bg);
     color: var(--gray-900);
     font-family: var(--font-main);
     line-height: 1.6;
     word-break: keep-all;
+    overflow-x: hidden;
 }
 
 .container {
@@ -39,35 +40,36 @@ body {
 
 /* --- Header --- */
 header {
-    padding: 100px 0 60px;
+    padding: 140px 0 80px; /* 상단 여백 확대하여 웅장함 부여 */
     text-align: center;
 }
 
 h1 {
     font-family: 'Outfit', sans-serif;
-    font-size: 64px;
+    font-size: 72px; /* 폰트 사이즈 키움 */
     font-weight: 900;
     letter-spacing: -2px;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
     color: var(--gray-900);
 }
 
 .subtitle {
-    font-size: 18px;
-    color: #8b95a1;
-    font-weight: 500;
-    letter-spacing: -0.3px;
+    font-size: 20px;
+    color: var(--gray-600);
+    font-weight: 400;
+    letter-spacing: 0px;
 }
 
 /* --- Navigation & Search --- */
 .nav-box {
-    background: rgba(249, 250, 251, 0.85);
-    backdrop-filter: blur(16px);
+    background: rgba(9, 9, 11, 0.7);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
     position: sticky;
     top: 0;
     z-index: 1000;
-    border-bottom: 1px solid var(--gray-200);
-    margin-bottom: 50px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05); /* 은은한 선 */
+    margin-bottom: 60px;
     transition: background 0.3s;
 }
 
@@ -75,7 +77,7 @@ h1 {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 80px;
+    height: 90px;
 }
 
 .filter-group {
@@ -85,65 +87,81 @@ h1 {
 }
 
 .filter-btn {
-    padding: 12px 20px;
-    border-radius: 12px;
-    border: none;
+    padding: 12px 24px;
+    border-radius: 30px; /* 알약 형태 */
+    border: 1px solid transparent;
     background: transparent;
     color: var(--gray-600);
-    font-weight: 600;
+    font-weight: 500;
     font-size: 15px;
     cursor: pointer;
     transition: var(--transition);
 }
 
 .filter-btn:hover {
-    background: var(--gray-200);
     color: var(--gray-900);
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .filter-btn.active {
     background: var(--gray-900);
-    color: #fff;
+    color: var(--bg);
 }
 
 .search-input-wrapper {
-    width: 320px;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+#search-toggle-btn {
+    display: none; /* 데스크톱에서는 숨김 */
+    background: transparent;
+    border: none;
+    color: var(--gray-600);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 10px;
 }
 
 .search-input-wrapper input {
-    width: 100%;
-    padding: 14px 20px;
-    border-radius: 14px;
-    border: 1px solid var(--gray-200);
-    background: #fff;
+    width: 320px;
+    padding: 14px 24px;
+    border-radius: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.2);
+    color: var(--gray-900);
     font-family: var(--font-main);
     font-size: 15px;
     outline: none;
     transition: var(--transition);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.search-input-wrapper input::placeholder {
+    color: var(--gray-600);
 }
 
 .search-input-wrapper input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(49, 130, 246, 0.1);
+    border-color: var(--gray-600);
+    background: rgba(255, 255, 255, 0.05);
 }
 
 /* --- Grid --- */
 .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 32px;
+    gap: 40px; /* 카드 간격 넓힘 */
     padding-bottom: 120px;
 }
 
 .card {
-    background: #fff;
+    background: var(--gray-50);
     border-radius: var(--radius);
-    padding: 20px;
+    padding: 24px;
     cursor: pointer;
     transition: var(--transition);
-    border: 1px solid var(--gray-200);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
 }
 
 .card:hover {
@@ -173,27 +191,27 @@ h1 {
 }
 
 .card-info h3 {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 700;
     color: var(--gray-900);
-    margin-bottom: 6px;
+    margin-bottom: 8px;
     letter-spacing: -0.5px;
 }
 
 .card-info p {
     font-size: 14px;
-    color: #8b95a1;
-    font-weight: 500;
+    color: var(--gray-600);
+    font-weight: 400;
 }
 
 /* --- Form UI (Admin) --- */
 .admin-card {
-    background: #fff;
+    background: var(--gray-50);
     border-radius: var(--radius);
-    padding: 48px;
-    margin-bottom: 32px;
-    border: 1px solid var(--gray-200);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+    padding: 56px;
+    margin-bottom: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
 }
 
 .form-title {
@@ -213,53 +231,81 @@ h1 {
 
 .input-field {
     width: 100%;
-    padding: 16px 20px;
-    border-radius: 12px;
+    padding: 18px 24px;
+    border-radius: 16px;
     border: 1px solid var(--gray-200);
-    background: var(--gray-50);
+    background: var(--gray-100);
+    color: var(--gray-900);
     font-family: var(--font-main);
     font-size: 16px;
-    margin-bottom: 24px;
+    margin-bottom: 32px;
     outline: none;
     transition: var(--transition);
 }
 
 .input-field:focus {
-    border-color: var(--accent);
-    background: #fff;
-    box-shadow: 0 0 0 3px rgba(49, 130, 246, 0.1);
+    border-color: var(--gray-600);
+    background: var(--gray-50);
 }
 
 .submit-btn {
     width: 100%;
-    padding: 18px;
-    background: var(--accent);
-    color: #fff;
+    padding: 20px;
+    background: var(--gray-900);
+    color: var(--bg);
     border: none;
-    border-radius: 14px;
-    font-size: 17px;
+    border-radius: 16px;
+    font-size: 18px;
     font-weight: 700;
     cursor: pointer;
     transition: var(--transition);
 }
 
 .submit-btn:hover {
-    background: #1b64da;
+    background: var(--accent);
+    color: #000;
 }
 
 .delete-btn {
     padding: 10px 16px;
     border-radius: 8px;
     border: none;
-    background: #fee;
-    color: #f44;
+    background: rgba(255, 68, 68, 0.1);
+    color: #ff4444;
     font-weight: 600;
     cursor: pointer;
     transition: background 0.2s;
 }
 
 .delete-btn:hover {
-    background: #fcc;
+    background: rgba(255, 68, 68, 0.2);
+}
+
+/* 태그 칩스 스타일 (새로운 디자인) */
+.chip-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 32px;
+}
+.chip {
+    padding: 10px 20px;
+    border-radius: 30px;
+    background: var(--gray-100);
+    border: 1px solid var(--gray-200);
+    color: var(--gray-600);
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 14px;
+    transition: var(--transition);
+}
+.chip:hover {
+    background: var(--gray-200);
+}
+.chip.active {
+    background: var(--accent);
+    color: #000;
+    border-color: var(--accent);
 }
 
 /* --- Modal --- */
@@ -271,27 +317,29 @@ h1 {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(25, 31, 40, 0.6);
-    backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.85); /* 극강의 어두운 배경 */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     justify-content: center;
     align-items: center;
 }
 
 .modal-content {
-    background: #fff;
+    background: var(--gray-50);
     width: 90%;
-    max-width: 1000px;
-    border-radius: 24px;
+    max-width: 1100px;
+    border-radius: 32px; /* 라운드 극대화 */
     overflow: hidden;
     display: flex;
     height: 75vh;
-    box-shadow: 0 40px 80px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8);
+    position: relative; /* 모바일 닫기 버튼용 */
 }
 
 /* THIS WILL center the modal content when display: flex */
 .modal-left {
     flex: 1.2;
-    background: var(--gray-100);
+    background: #000;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -306,7 +354,7 @@ h1 {
 
 .modal-right {
     flex: 0.8;
-    padding: 56px;
+    padding: 64px;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -316,7 +364,7 @@ h1 {
     .modal-content {
         flex-direction: column;
         overflow-y: auto;
-        height: 90vh;
+        height: 85vh;
     }
 
     .modal-left {
@@ -325,14 +373,46 @@ h1 {
     }
 
     .nav-content {
-        flex-direction: column;
-        height: auto;
-        padding: 20px 0;
-        gap: 16px;
+        padding: 16px 0;
+        gap: 0; /* 검색바를 토글 형태로 띄우기 위해 간격 없앰 */
     }
 
-    .search-input-wrapper {
-        width: 100%;
+    /* 모바일 닫기 버튼 특수 위치 설정 (그지같았던 부분 개선) */
+    #modal-close {
+        top: 16px !important;
+        right: 20px !important;
+        background: rgba(0,0,0,0.5);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #fff !important;
+        z-index: 10; /* 이미지 위에 뜨게 */
+    }
+    
+    .modal-right {
+        padding: 32px 24px;
+    }
+
+    /* 모바일 검색창 토글 관련 */
+    #search-toggle-btn {
+        display: block;
+    }
+
+    .search-input-wrapper input {
+        position: absolute;
+        top: 80px;
+        right: 16px;
+        width: calc(100vw - 32px); /* 화면을 꽉 채우는 펼쳐지는 검색창 */
+        display: none; /* 토글로 조작 */
+        box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        background: var(--gray-50);
+    }
+
+    .search-input-wrapper.open input {
+        display: block;
     }
 
     h1 {

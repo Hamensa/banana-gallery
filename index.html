@@ -9,9 +9,11 @@
 </head>
 
 <body>
-    <header class="container">
+    <header class="container" style="position: relative;">
         <h1>Banana Gallery</h1>
-        <p class="subtitle">프리미엄 AI 프롬프트 아카이브</p>
+        <p class="subtitle">프리미엄 AI 프롬프트 아카이브 <span style="margin: 0 10px; opacity: 0.3;">|</span> <a href="about.html"
+                style="color: var(--accent); text-decoration: none; font-weight: 600; font-size: 16px; border-bottom: 1px solid var(--accent); padding-bottom: 2px;">NANOBANANA
+                프로젝트란?</a></p>
     </header>
 
     <div class="nav-box">
@@ -24,6 +26,7 @@
                 <button class="filter-btn" data-tag="Art">예술/일러스트</button>
             </nav>
             <div class="search-input-wrapper">
+                <button id="search-toggle-btn">🔍</button>
                 <input type="text" id="search-input" placeholder="키워드로 찾기 (예: 사이버펑크)">
             </div>
         </div>
@@ -69,6 +72,12 @@
                 <button id="copy-btn" class="submit-btn" style="margin-top: auto;">프롬프트 복사하기</button>
             </div>
         </div>
+    </div>
+
+    <!-- Toast UI -->
+    <div id="toast"
+        style="display: none; position: fixed; bottom: -50px; left: 50%; transform: translateX(-50%); background: var(--gray-900); color: var(--bg); padding: 16px 32px; border-radius: 30px; font-weight: 700; font-size: 15px; z-index: 9999; box-shadow: 0 20px 40px rgba(0,0,0,0.5); transition: bottom 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s; opacity: 0;">
+        프롬프트가 복사되었습니다!
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
