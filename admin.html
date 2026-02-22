@@ -78,132 +78,198 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+        // 전역 에러 감지 (조용한 침묵 실패 방지)
+        window.onerror = function (msg, url, lineNo, columnNo, error) {
+            alert("🛑 [치명적 시스템 에러]\n" + msg + "\n(줄: " + lineNo + ")");
+            return false;
+        };
+
         const SUPABASE_URL = 'https://vwaidcntrtnixksyfuis.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_Pt1-wpYkluwuXx6vTLp2vg_gpuFlZlw';
-        let supabase = null;
-        try {
-            if (window.supabase) {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                console.log("✅ Supabase initialized successfully (Admin)");
-            } else {
-                console.warn("⚠️ Supabase script not found in admin window");
-            }
-        } catch (e) {
-            console.error("❌ Supabase init error:", e);
-        }
-
+        let subClient = null;
         const SECRET = 'banana123';
 
-        function preview(input) {
-            const previewImg = document.getElementById('preview-img');
-            const label = document.getElementById('file-label');
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (e) => { previewImg.src = e.target.result; previewImg.style.display = 'block'; label.innerText = input.files[0].name; }
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        async function load() {
-            const { data, error } = await supabase.from('prompts').select('*').order('id', { ascending: false });
-            if (error) return;
-            const list = document.getElementById('data-list');
-            list.innerHTML = data.map(p => `
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid #f2f4f6;">
-                    <div style="display: flex; gap: 16px; align-items: center;">
-                        <img src="${p.image}" style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover;">
-                        <div>
-                            <p style="font-weight: 700; font-size: 15px;">${p.title}</p>
-                            <p style="font-size: 13px; color: #666;">${p.model}</p>
-                        </div>
-                    </div>
-                    <button class="delete-btn" onclick="deletePrompt(${p.id})">삭제</button>
-                </div>
-            `).join('');
-        }
-
-        async function deletePrompt(id) {
-            if (prompt("시크릿 키를 입력하세요") !== SECRET) return alert("암호가 틀렸습니다.");
-            if (!confirm("정말 이 프롬프트를 삭제하시겠습니까?")) return;
-            await supabase.from('prompts').delete().eq('id', id);
-            load();
-        }
-
-        async function submitPrompt() {
-            console.log("🛠️ submitPrompt() 함수 호출됨");
-            const file = document.getElementById('p-file').files[0];
-            const title = document.getElementById('p-title').value;
-            const promptStr = document.getElementById('p-text').value;
-            const model = document.getElementById('p-model').value;
-            const tags = document.getElementById('p-tags').value.split(',').map(t => t.trim());
-            const password = document.getElementById('pw').value;
-
-            if (password !== SECRET) {
-                alert("보안 암호가 일치하지 않습니다.");
-                return;
-            }
-            if (!title || !promptStr) {
-                alert("제목과 프롬프트를 모두 입력해주세요.");
-                return;
-            }
-
-            document.getElementById('loader').style.display = 'flex';
+        // 문서 로드 완료 시 즉시 실행
+        document.addEventListener("DOMContentLoaded", function () {
             try {
-                if (!supabase) throw new Error("데이터베이스(Supabase)가 연결되지 않았습니다.");
+                if (typeof window.supabase === 'undefined') {
+                    alert("🛑 Supabase 라이브러리를 불러오지 못했습니다. (인터넷 문제이거나 브라우저 캐시/광고차단기 문제)");
+                    return;
+                }
+                subClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                loadList();
+            } catch (err) {
+                alert("🛑 초기화 중 에러 발생: " + err.message);
+            }
+        });
+
+        // == [전역 함수 구역] == //
+        // HTML의 onclick 속성에서 직접 호출할 수 있도록 명시적으로 전역(window) 객체에 할당합니다.
+
+        window.preview = function (input) {
+            try {
+                const previewImg = document.getElementById('preview-img');
+                const label = document.getElementById('file-label');
+                if (input.files && input.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        previewImg.src = e.target.result;
+                        previewImg.style.display = 'block';
+                        label.innerText = input.files[0].name;
+                    }
+                    reader.readAsDataURL(input.files[0]);
+                }
+            } catch (e) {
+                alert("🛑 미리보기 로드 에러: " + e.message);
+            }
+        };
+
+        window.loadList = async function () {
+            try {
+                if (!subClient) return;
+                const { data, error } = await subClient.from('prompts').select('*').order('id', { ascending: false });
+                if (error) {
+                    alert("🛑 목록 로드 실패: " + error.message);
+                    return;
+                }
+                const list = document.getElementById('data-list');
+                list.innerHTML = data.map(p => `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid #f2f4f6;">
+                        <div style="display: flex; gap: 16px; align-items: center;">
+                            <img src="${p.image}" style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover; background: #eee;">
+                            <div>
+                                <p style="font-weight: 700; font-size: 15px;">${p.title}</p>
+                                <p style="font-size: 13px; color: #666;">${p.model}</p>
+                            </div>
+                        </div>
+                        <button class="delete-btn" onclick="deletePrompt(${p.id})">삭제</button>
+                    </div>
+                `).join('');
+            } catch (e) {
+                alert("🛑 목록 렌더링 에러: " + e.message);
+            }
+        };
+
+        window.deletePrompt = async function (id) {
+            try {
+                if (prompt("시크릿 키를 입력하세요") !== SECRET) {
+                    alert("❌ 암호가 틀렸습니다.");
+                    return;
+                }
+                if (!confirm("정말 이 프롬프트를 삭제하시겠습니까?")) return;
+
+                const { error } = await subClient.from('prompts').delete().eq('id', id);
+                if (error) throw new Error(error.message);
+
+                alert("✅ 삭제되었습니다.");
+                loadList();
+            } catch (e) {
+                alert("🛑 삭제 실패: " + e.message);
+            }
+        };
+
+        window.submitPrompt = async function () {
+            try {
+                if (!subClient) {
+                    alert("🛑 시스템: 데이터베이스에 접속되지 않았습니다.");
+                    return;
+                }
+
+                const fileInput = document.getElementById('p-file');
+                const titleInput = document.getElementById('p-title');
+                const textInput = document.getElementById('p-text');
+                const modelInput = document.getElementById('p-model');
+                const tagsInput = document.getElementById('p-tags');
+                const pwInput = document.getElementById('pw');
+
+                // HTML 요소 존재 확인
+                if (!titleInput || !textInput || !pwInput || !fileInput || !modelInput || !tagsInput) {
+                    alert("🛑 시스템: 화면에서 입력 칸을 찾을 수 없습니다.");
+                    return;
+                }
+
+                const file = fileInput.files[0];
+                const title = titleInput.value.trim();
+                const promptStr = textInput.value.trim();
+                const modelStr = modelInput.value;
+                const pw = pwInput.value.trim();
+
+                let tagsStr = tagsInput.value.trim();
+                let tagsArray = [];
+                if (tagsStr) {
+                    tagsArray = tagsStr.split(',').map(function (t) { return t.trim(); }).filter(function (t) { return t !== ""; });
+                }
+
+                if (pw !== SECRET) {
+                    alert("❌ 보안 암호가 일치하지 않습니다.");
+                    return;
+                }
+                if (title === "" || promptStr === "") {
+                    alert("❌ 제목과 프롬프트를 반드시 입력해주세요.");
+                    return;
+                }
+
+                document.getElementById('loader').style.display = 'flex';
 
                 let imageUrl = "https://via.placeholder.com/500?text=No+Image";
 
+                // 파일이 있으면 업로드
                 if (file) {
-                    // 1. 이미지 업로드
                     const ext = file.name.split('.').pop();
-                    const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
-                    const { error: uploadError } = await supabase.storage
-                        .from('images')
-                        .upload(`prompts/${fileName}`, file, { cacheControl: '3600', upsert: false });
+                    const fileName = Date.now() + "_" + Math.floor(Math.random() * 1000000) + "." + ext;
 
-                    if (uploadError) throw uploadError;
-
-                    // 2. 업로드된 이미지 URL 가져오기
-                    const { data: publicUrlData } = supabase.storage
+                    const { data: uploadData, error: uploadError } = await subClient.storage
                         .from('images')
-                        .getPublicUrl(`prompts/${fileName}`);
-                    imageUrl = publicUrlData.publicUrl;
+                        .upload('prompts/' + fileName, file);
+
+                    if (uploadError) {
+                        throw new Error("이미지 업로드 실패: " + uploadError.message);
+                    }
+
+                    const { data: publicUrlData } = subClient.storage
+                        .from('images')
+                        .getPublicUrl('prompts/' + fileName);
+
+                    if (publicUrlData && publicUrlData.publicUrl) {
+                        imageUrl = publicUrlData.publicUrl;
+                    }
                 }
 
-                // 3. DB에 데이터 삽입
-                const { error: insertError } = await supabase
+                // DB 입력
+                const { data: insertData, error: insertError } = await subClient
                     .from('prompts')
                     .insert([{
                         title: title,
                         prompt: promptStr,
-                        model: model,
-                        tags: tags,
+                        model: modelStr,
+                        tags: tagsArray,
                         image: imageUrl
                     }]);
 
-                if (insertError) throw insertError;
+                if (insertError) {
+                    throw new Error("데이터 저장 실패: " + insertError.message);
+                }
 
                 alert("✅ 성공적으로 등록되었습니다!");
 
-                // Form Reset
-                document.getElementById('p-title').value = '';
-                document.getElementById('p-text').value = '';
-                document.getElementById('p-tags').value = '';
-                document.getElementById('pw').value = '';
-                document.getElementById('p-file').value = '';
+                // 폼 초기화
+                titleInput.value = '';
+                textInput.value = '';
+                tagsInput.value = '';
+                pwInput.value = '';
+                fileInput.value = '';
                 document.getElementById('preview-img').style.display = 'none';
                 document.getElementById('file-label').innerText = '이미지 파일을 드래그하거나 클릭하여 선택하세요';
 
-                load(); // 리스트 갱신
+                loadList();
+
             } catch (err) {
-                console.error("Save Error Details:", err);
-                alert("등록 중 오류가 발생했습니다: " + err.message);
+                alert("🛑 등록 에러 발생: " + err.message);
+            } finally {
+                const loader = document.getElementById('loader');
+                if (loader) loader.style.display = 'none';
             }
-            finally {
-                document.getElementById('loader').style.display = 'none';
-            }
-        }
-        load();
+        };
     </script>
 </body>
 
