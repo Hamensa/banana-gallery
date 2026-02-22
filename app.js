@@ -3,10 +3,16 @@ const SUPABASE_URL = 'https://vwaidcntrtnixksyfuis.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_Pt1-wpYkluwuXx6vTLp2vg_gpuFlZlw';
 let supabase = null;
 try {
-    if (window.supabase) supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    if (window.supabase) {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log("✅ Supabase initialized successfully");
+    } else {
+        console.warn("⚠️ Supabase script not found in window");
+    }
 } catch (e) {
-    console.error("Supabase could not be initialized:", e);
+    console.error("❌ Supabase could not be initialized:", e);
 }
+
 
 // --- PREMIUM MASSIVE SEED DATA (NANOBANANA EDITION) ---
 const SEED_DATA = [
@@ -92,22 +98,25 @@ async function startup() {
     }
 
     try {
-        if (window.location.protocol.startsWith('http') && supabase) {
+        if (supabase) {
             const { data, error } = await supabase.from('prompts').select('*').order('id', { ascending: false });
             if (!error && data && data.length > 0) {
-                // If cloud has data, we append the local seed data so it always looks full
+                console.log(`✅ Loaded ${data.length} prompts from Supabase`);
+                // Append seed data for a rich initial experience
                 database = [...data, ...SEED_DATA];
             } else {
+                if (error) console.error("Supabase Fetch Error:", error);
                 database = SEED_DATA;
             }
         } else {
-            console.log("로컬(file://) 환경 감지됨. 데이터베이스 연동을 건너뛰고 샘플 데이터를 로드합니다.");
+            console.log("⚠️ Supabase client not available, using seed data only");
             database = SEED_DATA;
         }
     } catch (e) {
-        console.error("Supabase Error:", e);
+        console.error("💥 Unexpected startup error:", e);
         database = SEED_DATA;
     }
+
 
     if (gallery) {
         render(database);
