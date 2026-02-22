@@ -56,7 +56,7 @@
             <label class="input-label">시크릿 키</label>
             <input type="password" id="pw" class="input-field" placeholder="암호를 입력하세요">
 
-            <button class="submit-btn" onclick="save()">저장하기</button>
+            <button class="submit-btn" onclick="submitPrompt()">저장하기</button>
         </div>
 
         <!-- Management List -->
@@ -117,19 +117,20 @@
                             <p style="font-size: 13px; color: #666;">${p.model}</p>
                         </div>
                     </div>
-                    <button class="delete-btn" onclick="del(${p.id})">삭제</button>
+                    <button class="delete-btn" onclick="deletePrompt(${p.id})">삭제</button>
                 </div>
             `).join('');
         }
 
-        async function del(id) {
+        async function deletePrompt(id) {
             if (prompt("시크릿 키를 입력하세요") !== SECRET) return alert("암호가 틀렸습니다.");
             if (!confirm("정말 이 프롬프트를 삭제하시겠습니까?")) return;
             await supabase.from('prompts').delete().eq('id', id);
             load();
         }
 
-        async function save() {
+        async function submitPrompt() {
+            console.log("🛠️ submitPrompt() 함수 호출됨");
             const file = document.getElementById('p-file').files[0];
             const title = document.getElementById('p-title').value;
             const promptStr = document.getElementById('p-text').value;
