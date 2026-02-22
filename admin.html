@@ -42,6 +42,9 @@
                         <option value="DALL-E 3">DALL-E 3</option>
                         <option value="Stable Diffusion XL">Stable Diffusion XL</option>
                         <option value="Flux.1">Flux.1</option>
+                        <option value="Claude 3.5 Sonnet">Claude 3.5 Sonnet</option>
+                        <option value="Claude 3 Opus">Claude 3 Opus</option>
+
                     </select>
                 </div>
                 <div>
@@ -77,17 +80,18 @@
     <script>
         const SUPABASE_URL = 'https://vwaidcntrtnixksyfuis.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_Pt1-wpYkluwuXx6vTLp2vg_gpuFlZlw';
-<<<<<<< Updated upstream
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-=======
         let supabase = null;
         try {
-            if (window.supabase) supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            if (window.supabase) {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log("✅ Supabase initialized successfully (Admin)");
+            } else {
+                console.warn("⚠️ Supabase script not found in admin window");
+            }
         } catch (e) {
-            console.error("Supabase init error (likely file:/// block):", e);
-            alert("로컬(file://) 환경에서는 브라우저 보안 정책으로 데이터베이스에 연결할 수 없습니다. 관리자 기능을 사용하려면 인터넷 브라우저 환경에서 열어주세요.");
+            console.error("❌ Supabase init error:", e);
         }
->>>>>>> Stashed changes
+
         const SECRET = 'banana123';
 
         function preview(input) {
