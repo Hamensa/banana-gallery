@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NanoBanana Prompt Gallery</title>
+    <link rel="stylesheet" href="style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&family=Syncopate:wght@700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <header class="hero">
+        <div class="container">
+            <h1 class="fade-in">NANOBANANA</h1>
+            <p class="subtitle">Premium AI Prompt Curation</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="filter-bar">
+            <button class="filter-btn active" data-tag="all">All</button>
+            <button class="filter-btn" data-tag="Design">Design</button>
+            <button class="filter-btn" data-tag="Portrait">Portrait</button>
+            <button class="filter-btn" data-tag="3D">3D</button>
+        </div>
+
+        <div id="gallery" class="grid">
+            <!-- Prompts will be loaded here -->
+        </div>
+    </main>
+
+    <footer class="container">
+        <p>&copy; 2024 NanoBanana. Designed for professionals.</p>
+    </footer>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="modal-body">
+                <img id="modal-image" src="" alt="">
+                <div class="modal-info">
+                    <h2 id="modal-title"></h2>
+                    <p id="modal-model" class="model-badge"></p>
+                    <div class="prompt-box">
+                        <pre id="modal-prompt"></pre>
+                        <button id="copy-btn" class="copy-btn">COPY PROMPT</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>

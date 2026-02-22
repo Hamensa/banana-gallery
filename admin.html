@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NanoBanana Admin Panel</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .admin-form {
+            max-width: 600px;
+            margin: 4rem auto;
+            background: #111;
+            padding: 2rem;
+            border: 1px solid var(--accent);
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: #222;
+            border: 1px solid #333;
+            color: #fff;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        #json-preview {
+            background: #000;
+            padding: 1rem;
+            margin-top: 2rem;
+            border: 1px dashed #666;
+            font-family: monospace;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="container">
+        <h1>ADMIN PANEL</h1>
+        <p>Add new prompts and update your database.</p>
+    </header>
+
+    <main class="container">
+        <div class="admin-form">
+            <h2>Add New Prompt</h2>
+            <input type="text" id="p-title" placeholder="Prompt Title (e.g. Cyberpunk UI)">
+            <textarea id="p-text" placeholder="The actual prompt text..." rows="6"></textarea>
+            <input type="text" id="p-image" placeholder="Image URL (e.g. https://...)">
+            <select id="p-model">
+                <option value="NanoBanana">NanoBanana</option>
+                <option value="ChatGPT (DALLE-3)">ChatGPT (DALLE-3)</option>
+                <option value="Midjourney">Midjourney</option>
+            </select>
+            <input type="text" id="p-tags" placeholder="Tags (comma separated: Design, 3D, UI)">
+
+            <div class="form-group">
+                <label>관리자 비밀번호</label>
+                <input type="password" id="admin-pw" placeholder="비밀번호를 입력하세요">
+            </div>
+            <div class="btn-row">
+                <button type="button" class="copy-btn" onclick="addPrompt()">ADD TO LIST</button>
+                <button type="button" class="copy-btn" style="background: #444;" onclick="downloadJSON()">DOWNLOAD JS
+                    FILE</button>
+            </div>
+        </div>
+
+        <div id="json-output" class="container">
+            <h3>Current JSON Payload</h3>
+            <pre id="json-preview"></pre>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Supabase Configuration - 이곳에 실제 값을 입력하세요!
+        const SUPABASE_URL = 'https://vwaidcntrtnixksyfuis.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_Pt1-wpYkluwuXx6vTLp2vg_gpuFlZlw';
+        // 보안을 위한 간단 권한 체크 (원하시는 비밀번호로 바꾸세요!)
+        const ADMIN_PASSWORD = 'banana123';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let promptList = [];
+
+        // DB에서 최신 데이터 가져오기
+        async function fetchFromDB() {
+            const { data, error } = await supabase
+                .from('prompts')
+                .select('*')
+                .order('id', { ascending: false });
+
+            if (!error) {
+                promptList = data;
+                updatePreview();
+            }
+        }
+        fetchFromDB();
+
+        async function addPrompt() {
+            const title = document.getElementById('p-title').value;
+            const prompt = document.getElementById('p-text').value;
+            const image = document.getElementById('p-image').value;
+            const model = document.getElementById('p-model').value;
+            const tags = document.getElementById('p-tags').value.split(',').map(t => t.trim());
+            const enteredPw = document.getElementById('admin-pw').value;
+
+            if (enteredPw !== ADMIN_PASSWORD) {
+                alert("관리자 비밀번호가 틀렸습니다!");
+                return;
+            }
+
+            if (!title || !prompt) {
+                alert("제목과 내용은 필수입니다!");
+                return;
+            }
+
+            const { data, error } = await supabase
+                .from('prompts')
+                .insert([
+                    { title, prompt, image, model, tags }
+                ]);
+
+            if (error) {
+                console.error("Error saving:", error);
+                alert("저장 실패: " + error.message);
+            } else {
+                alert("성공적으로 DB에 저장되었습니다!");
+                fetchFromDB(); // 리스트 갱신
+            }
+        }
+
+        function updatePreview() {
+            document.getElementById('json-preview').innerText = JSON.stringify(promptList, null, 2);
+        }
+    </script>
+</body>
+
+</html>

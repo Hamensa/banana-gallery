@@ -1,0 +1,35 @@
+[
+    {
+        "id": 1,
+        "title": "사이버펑크 서울 (Cyberpunk Seoul)",
+        "prompt": "모든 디테일이 살아있는 미래 지향적 사이트: A hyper-realistic cyberpunk cityscape of Seoul in the future, neon signs in Korean, flying vehicles, rainy night with reflections, cinematic lighting, 8k resolution, volumetric fog, highly detailed digital art style.",
+        "image": "https://picsum.photos/seed/seoul/800/1000",
+        "model": "NanoBanana",
+        "tags": [
+            "Design",
+            "Landscape"
+        ]
+    },
+    {
+        "id": 2,
+        "title": "미니멀리즘 인테리어 (Zen Design)",
+        "prompt": "평온함을 주는 공간 디자인: A minimalist Zen-style interior design, large windows showing a bamboo forest, soft natural sunlight, organic textures, clay vases, neutral beige and white palette, high-end architectural photography.",
+        "image": "https://picsum.photos/seed/zen/800/1000",
+        "model": "ChatGPT (DALLE-3)",
+        "tags": [
+            "Architecture",
+            "Interior"
+        ]
+    },
+    {
+        "id": 3,
+        "title": "추상 리퀴드 골드 (Liquid Gold)",
+        "prompt": "고급스러운 럭셔리 질감: Abstract liquid gold and marble texture, flowing organic shapes, luxury aesthetic, metallic reflections, high contrast, macro photography, 3D render.",
+        "image": "https://picsum.photos/seed/gold/800/1000",
+        "model": "NanoBanana",
+        "tags": [
+            "3D",
+            "Abstract"
+        ]
+    }
+]
