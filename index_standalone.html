@@ -1,12 +1,424 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>바나나 갤러리 | Banana Gallery</title>
+    <style>
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@200;400;700;900&display=swap');
+
+:root {
+    --bg: #ffffff;
+    --gray-50: #f9fafb;
+    --gray-100: #f2f4f6;
+    --gray-200: #e5e8eb;
+    --gray-600: #4e5968;
+    --gray-700: #333d4b;
+    --gray-900: #191f28;
+    --accent: #3182f6;
+    --banana: #FFE135;
+    --font-main: 'Pretendard', 'Outfit', sans-serif;
+    --radius: 20px;
+    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+}
+
+body {
+    background-color: var(--gray-50);
+    color: var(--gray-900);
+    font-family: var(--font-main);
+    line-height: 1.6;
+    word-break: keep-all;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 32px;
+}
+
+/* --- Header --- */
+header {
+    padding: 100px 0 60px;
+    text-align: center;
+}
+
+h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 64px;
+    font-weight: 900;
+    letter-spacing: -2px;
+    margin-bottom: 12px;
+    color: var(--gray-900);
+}
+
+.subtitle {
+    font-size: 18px;
+    color: #8b95a1;
+    font-weight: 500;
+    letter-spacing: -0.3px;
+}
+
+/* --- Navigation & Search --- */
+.nav-box {
+    background: rgba(249, 250, 251, 0.85);
+    backdrop-filter: blur(16px);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-bottom: 1px solid var(--gray-200);
+    margin-bottom: 50px;
+    transition: background 0.3s;
+}
+
+.nav-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 80px;
+}
+
+.filter-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 12px 20px;
+    border-radius: 12px;
+    border: none;
+    background: transparent;
+    color: var(--gray-600);
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.filter-btn:hover {
+    background: var(--gray-200);
+    color: var(--gray-900);
+}
+
+.filter-btn.active {
+    background: var(--gray-900);
+    color: #fff;
+}
+
+.search-input-wrapper {
+    width: 320px;
+}
+
+.search-input-wrapper input {
+    width: 100%;
+    padding: 14px 20px;
+    border-radius: 14px;
+    border: 1px solid var(--gray-200);
+    background: #fff;
+    font-family: var(--font-main);
+    font-size: 15px;
+    outline: none;
+    transition: var(--transition);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.search-input-wrapper input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(49, 130, 246, 0.1);
+}
+
+/* --- Grid --- */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 32px;
+    padding-bottom: 120px;
+}
+
+.card {
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 20px;
+    cursor: pointer;
+    transition: var(--transition);
+    border: 1px solid var(--gray-200);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    border-color: transparent;
+}
+
+.card-img-wrapper {
+    width: 100%;
+    aspect-ratio: 1/1.05;
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    background: var(--gray-100);
+}
+
+.card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.card:hover img {
+    transform: scale(1.04);
+}
+
+.card-info h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin-bottom: 6px;
+    letter-spacing: -0.5px;
+}
+
+.card-info p {
+    font-size: 14px;
+    color: #8b95a1;
+    font-weight: 500;
+}
+
+/* --- Form UI (Admin) --- */
+.admin-card {
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 48px;
+    margin-bottom: 32px;
+    border: 1px solid var(--gray-200);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+}
+
+.form-title {
+    font-size: 26px;
+    font-weight: 800;
+    margin-bottom: 32px;
+    letter-spacing: -0.5px;
+}
+
+.input-label {
+    display: block;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--gray-700);
+    margin-bottom: 10px;
+}
+
+.input-field {
+    width: 100%;
+    padding: 16px 20px;
+    border-radius: 12px;
+    border: 1px solid var(--gray-200);
+    background: var(--gray-50);
+    font-family: var(--font-main);
+    font-size: 16px;
+    margin-bottom: 24px;
+    outline: none;
+    transition: var(--transition);
+}
+
+.input-field:focus {
+    border-color: var(--accent);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(49, 130, 246, 0.1);
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 18px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.submit-btn:hover {
+    background: #1b64da;
+}
+
+.delete-btn {
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: none;
+    background: #fee;
+    color: #f44;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.delete-btn:hover {
+    background: #fcc;
+}
+
+/* --- Modal --- */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(25, 31, 40, 0.6);
+    backdrop-filter: blur(8px);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: #fff;
+    width: 90%;
+    max-width: 1000px;
+    border-radius: 24px;
+    overflow: hidden;
+    display: flex;
+    height: 75vh;
+    box-shadow: 0 40px 80px rgba(0, 0, 0, 0.2);
+}
+
+/* THIS WILL center the modal content when display: flex */
+.modal-left {
+    flex: 1.2;
+    background: var(--gray-100);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.modal-left img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.modal-right {
+    flex: 0.8;
+    padding: 56px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+@media (max-width: 860px) {
+    .modal-content {
+        flex-direction: column;
+        overflow-y: auto;
+        height: 90vh;
+    }
+
+    .modal-left {
+        height: 40vh;
+        flex: none;
+    }
+
+    .nav-content {
+        flex-direction: column;
+        height: auto;
+        padding: 20px 0;
+        gap: 16px;
+    }
+
+    .search-input-wrapper {
+        width: 100%;
+    }
+
+    h1 {
+        font-size: 48px;
+    }
+}
+</style>
+</head>
+
+<body>
+    <header class="container">
+        <h1>Banana Gallery</h1>
+        <p class="subtitle">프리미엄 AI 프롬프트 아카이브</p>
+    </header>
+
+    <div class="nav-box">
+        <div class="container nav-content">
+            <nav class="filter-group">
+                <button class="filter-btn active" data-tag="all">전체보기</button>
+                <button class="filter-btn" data-tag="Design">디자인</button>
+                <button class="filter-btn" data-tag="3D">3D 아트</button>
+                <button class="filter-btn" data-tag="Portrait">인물/패션</button>
+                <button class="filter-btn" data-tag="Art">예술/일러스트</button>
+            </nav>
+            <div class="search-input-wrapper">
+                <input type="text" id="search-input" placeholder="키워드로 찾기 (예: 사이버펑크)">
+            </div>
+        </div>
+    </div>
+
+    <main class="container">
+        <div id="gallery" class="grid">
+            <!-- 콘텐츠 로드 중... -->
+        </div>
+    </main>
+
+    <footer class="container"
+        style="text-align: center; padding: 80px 0 40px; border-top: 1px solid #e5e8eb; color: #8b95a1; font-size: 14px;">
+        <p>&copy; 2024 Banana Gallery Studio. All rights reserved.</p>
+        <a href="admin.html"
+            style="margin-top: 20px; display: inline-block; color: #d1d6db; text-decoration: none; font-size: 12px; transition: color 0.3s;"
+            onmouseover="this.style.color='#8b95a1'" onmouseout="this.style.color='#d1d6db'">관리자 대시보드</a>
+    </footer>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-left">
+                <img id="modal-image" src="" alt="Prompt Image">
+            </div>
+            <div class="modal-right">
+                <span id="modal-close"
+                    style="position: absolute; top: 24px; right: 32px; cursor: pointer; font-size: 32px; color: #8b95a1; transition: color 0.3s;"
+                    onmouseover="this.style.color='#191f28'" onmouseout="this.style.color='#8b95a1'">&times;</span>
+
+                <h2 id="modal-title" style="font-size: 28px; font-weight: 800; margin-bottom: 8px; color: #191f28;">
+                </h2>
+                <p id="modal-model"
+                    style="color: #3182f6; font-weight: 700; margin-bottom: 24px; font-size: 14px; background: #e8f3ff; display: inline-block; padding: 4px 12px; border-radius: 6px;">
+                </p>
+
+                <div
+                    style="background: #f9fafb; padding: 24px; border-radius: 12px; margin-bottom: 40px; border: 1px solid #f2f4f6;">
+                    <p id="modal-prompt"
+                        style="font-size: 16px; color: #4e5968; line-height: 1.7; word-break: break-word;"></p>
+                </div>
+
+                <button id="copy-btn" class="submit-btn" style="margin-top: auto;">프롬프트 복사하기</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
 // --- SUPABASE CONFIG ---
 const SUPABASE_URL = 'https://vwaidcntrtnixksyfuis.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_Pt1-wpYkluwuXx6vTLp2vg_gpuFlZlw';
-let supabase = null;
-try {
-    if (window.supabase) supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-} catch (e) {
-    console.error("Supabase could not be initialized:", e);
-}
+const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
 // --- PREMIUM MASSIVE SEED DATA (NANOBANANA EDITION) ---
 const SEED_DATA = [
@@ -92,7 +504,7 @@ async function startup() {
     }
 
     try {
-        if (window.location.protocol.startsWith('http') && supabase) {
+        if (supabase) {
             const { data, error } = await supabase.from('prompts').select('*').order('id', { ascending: false });
             if (!error && data && data.length > 0) {
                 // If cloud has data, we append the local seed data so it always looks full
@@ -101,7 +513,6 @@ async function startup() {
                 database = SEED_DATA;
             }
         } else {
-            console.log("로컬(file://) 환경 감지됨. 데이터베이스 연동을 건너뛰고 샘플 데이터를 로드합니다.");
             database = SEED_DATA;
         }
     } catch (e) {
@@ -273,3 +684,8 @@ function closeModal() {
 
 // Start application
 startup();
+
+</script>
+</body>
+
+</html>
