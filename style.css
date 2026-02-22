@@ -11,18 +11,27 @@
     --text-secondary: #a0a0a0;
     --font-main: 'Outfit', sans-serif;
     --font-heading: 'Syncopate', sans-serif;
+    --bg: #050505;
+    --card-bg: rgba(255, 255, 255, 0.03);
+    --glass: rgba(255, 255, 255, 0.05);
+    --accent: #f3f3f3;
+    --text: #ffffff;
+    --text-dim: #a0a0a0;
+    --banana: #FFE135;
+    --gradient: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
 }
 
 body {
-    background-color: var(--bg-dark);
-    color: var(--text-primary);
-    font-family: var(--font-main);
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
     line-height: 1.6;
     overflow-x: hidden;
     position: relative;

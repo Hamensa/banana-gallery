@@ -55,16 +55,21 @@ function renderGallery(prompts) {
 }
 
 function setupFilters(prompts) {
-    document.querySelectorAll('.filter-btn').forEach(btn => {
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    filterBtns.forEach(btn => {
         btn.onclick = () => {
-            const tag = btn.dataset.tag;
+            const tag = btn.dataset.tag.toLowerCase();
             document.querySelector('.filter-btn.active').classList.remove('active');
             btn.classList.add('active');
 
             if (tag === 'all') {
                 renderGallery(prompts);
             } else {
-                renderGallery(prompts.filter(p => p.tags.includes(tag)));
+                // 대소문자 구분 없이 똑똑하게 필터링
+                const filtered = prompts.filter(p =>
+                    p.tags && p.tags.some(t => t.toLowerCase() === tag)
+                );
+                renderGallery(filtered);
             }
         };
     });
