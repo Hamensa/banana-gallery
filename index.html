@@ -11,19 +11,20 @@
 <body>
     <header class="container">
         <h1>Banana Gallery</h1>
-        <p class="subtitle">프리미엄 AI 프롬프트 큐레이션</p>
+        <p class="subtitle">프리미엄 AI 프롬프트 아카이브</p>
     </header>
 
     <div class="nav-box">
         <div class="container nav-content">
             <nav class="filter-group">
-                <button class="filter-btn active" data-tag="all">전체</button>
+                <button class="filter-btn active" data-tag="all">전체보기</button>
                 <button class="filter-btn" data-tag="Design">디자인</button>
-                <button class="filter-btn" data-tag="Portrait">인물</button>
-                <button class="filter-btn" data-tag="3D">3D</button>
+                <button class="filter-btn" data-tag="3D">3D 아트</button>
+                <button class="filter-btn" data-tag="Portrait">인물/패션</button>
+                <button class="filter-btn" data-tag="Art">예술/일러스트</button>
             </nav>
             <div class="search-input-wrapper">
-                <input type="text" id="search-input" placeholder="관심 있는 프롬프트 검색">
+                <input type="text" id="search-input" placeholder="키워드로 찾기 (예: 사이버펑크)">
             </div>
         </div>
     </div>
@@ -35,28 +36,37 @@
     </main>
 
     <footer class="container"
-        style="text-align: center; padding: 60px 0; border-top: 1px solid #e5e8eb; color: #666; font-size: 14px;">
+        style="text-align: center; padding: 80px 0 40px; border-top: 1px solid #e5e8eb; color: #8b95a1; font-size: 14px;">
         <p>&copy; 2024 Banana Gallery Studio. All rights reserved.</p>
         <a href="admin.html"
-            style="margin-top: 16px; display: inline-block; color: #ccc; text-decoration: none; font-size: 11px;">관리자
-            콘솔</a>
+            style="margin-top: 20px; display: inline-block; color: #d1d6db; text-decoration: none; font-size: 12px; transition: color 0.3s;"
+            onmouseover="this.style.color='#8b95a1'" onmouseout="this.style.color='#d1d6db'">관리자 대시보드</a>
     </footer>
 
     <!-- Modal -->
     <div id="modal" class="modal">
         <div class="modal-content">
             <div class="modal-left">
-                <img id="modal-image" src="" alt="">
+                <img id="modal-image" src="" alt="Prompt Image">
             </div>
             <div class="modal-right">
-                <h2 id="modal-title" style="font-size: 32px; margin-bottom: 12px;"></h2>
-                <p id="modal-model" style="color: #3182f6; font-weight: 700; margin-bottom: 24px;"></p>
-                <div style="background: #f2f4f6; padding: 24px; border-radius: 16px; margin-bottom: 32px;">
-                    <p id="modal-prompt" style="font-size: 16px; color: #4e5968; line-height: 1.6;"></p>
-                </div>
-                <button id="copy-btn" class="submit-btn">프롬프트 복사</button>
                 <span id="modal-close"
-                    style="position: absolute; top: 24px; right: 24px; cursor: pointer; font-size: 24px; color: #ccc;">&times;</span>
+                    style="position: absolute; top: 24px; right: 32px; cursor: pointer; font-size: 32px; color: #8b95a1; transition: color 0.3s;"
+                    onmouseover="this.style.color='#191f28'" onmouseout="this.style.color='#8b95a1'">&times;</span>
+
+                <h2 id="modal-title" style="font-size: 28px; font-weight: 800; margin-bottom: 8px; color: #191f28;">
+                </h2>
+                <p id="modal-model"
+                    style="color: #3182f6; font-weight: 700; margin-bottom: 24px; font-size: 14px; background: #e8f3ff; display: inline-block; padding: 4px 12px; border-radius: 6px;">
+                </p>
+
+                <div
+                    style="background: #f9fafb; padding: 24px; border-radius: 12px; margin-bottom: 40px; border: 1px solid #f2f4f6;">
+                    <p id="modal-prompt"
+                        style="font-size: 16px; color: #4e5968; line-height: 1.7; word-break: break-word;"></p>
+                </div>
+
+                <button id="copy-btn" class="submit-btn" style="margin-top: auto;">프롬프트 복사하기</button>
             </div>
         </div>
     </div>
