@@ -3,144 +3,143 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>NANOBANANA | MANAGEMENT CONSOLE</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banana Gallery | Console</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        .loading-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            z-index: 10000;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Syncopate', sans-serif;
-            letter-spacing: 0.5em;
-        }
-    </style>
 </head>
 
-<body style="background: #000;">
-    <div id="loader" class="loading-overlay">PROCESSING...</div>
+<body>
+    <header class="container">
+        <h1>Console</h1>
+        <p class="subtitle">데이터베이스 매니지먼트</p>
+    </header>
 
-    <div class="admin-container">
-        <h1 style="font-size: 3rem; margin-bottom: 3rem;">CONSOLE</h1>
+    <main class="container">
+        <!-- Upload Card -->
+        <div class="admin-card">
+            <h2 class="form-title">새 프롬프트 등록</h2>
 
-        <!-- Upload Form -->
-        <div style="background: #050505; padding: 3rem; border: 1px solid #111; margin-bottom: 5rem;">
-            <h2 style="margin-bottom: 2rem;">신규 등록 / NEW REGISTRATION</h2>
-            <div class="form-group">
-                <div class="file-input-wrapper" onclick="document.getElementById('p-file').click()">
-                    <span id="file-label">이미지 파일 선택 / SELECT IMAGE</span>
-                    <input type="file" id="p-file" style="display: none;" accept="image/*"
-                        onchange="previewImage(this)">
+            <label class="input-label">이미지 파일</label>
+            <div style="border: 2px dashed #e5e8eb; padding: 40px; text-align: center; border-radius: 16px; margin-bottom: 24px; cursor: pointer;"
+                onclick="document.getElementById('p-file').click()">
+                <p id="file-label" style="color: #666;">이미지 파일을 드래그하거나 클릭하여 선택하세요</p>
+                <input type="file" id="p-file" style="display: none;" accept="image/*" onchange="preview(this)">
+            </div>
+            <img id="preview-img"
+                style="width: 100%; max-height: 300px; object-fit: contain; margin-bottom: 24px; display: none; border-radius: 12px;">
+
+            <label class="input-label">제목</label>
+            <input type="text" id="p-title" class="input-field" placeholder="예: 사이버펑크 네온 바나나">
+
+            <label class="input-label">프롬프트</label>
+            <textarea id="p-text" class="input-field" rows="4" placeholder="AI 프롬프트를 입력하세요"></textarea>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div>
+                    <label class="input-label">모델</label>
+                    <select id="p-model" class="input-field">
+                        <option value="Midjourney v6">Midjourney v6</option>
+                        <option value="DALL-E 3">DALL-E 3</option>
+                        <option value="Stable Diffusion XL">Stable Diffusion XL</option>
+                        <option value="Flux.1">Flux.1</option>
+                    </select>
                 </div>
-                <img id="preview-img" style="width: 100%; display: none; margin-bottom: 2rem;">
+                <div>
+                    <label class="input-label">태그 (숨표 구분)</label>
+                    <input type="text" id="p-tags" class="input-field" placeholder="Design, 3D">
+                </div>
             </div>
-            <input type="text" id="p-title" placeholder="제목 / TITLE">
-            <textarea id="p-text" placeholder="프롬프트 내용 / PROMPT" rows="5"></textarea>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-                <select id="p-model">
-                    <option value="Midjourney v6">Midjourney v6</option>
-                    <option value="DALL-E 3">DALL-E 3</option>
-                    <option value="Stable Diffusion XL">Stable Diffusion XL</option>
-                    <option value="Flux.1">Flux.1</option>
-                </select>
-                <input type="text" id="p-tags" placeholder="태그 (쉼표로 구분: Design, 3D)">
-            </div>
-            <input type="password" id="admin-pw" placeholder="SECRET KEY">
-            <button class="copy-btn" style="width: 100%;" onclick="uploadAndSave()">데이터베이스 반영 / COMMIT</button>
+
+            <label class="input-label">시크릿 키</label>
+            <input type="password" id="pw" class="input-field" placeholder="암호를 입력하세요">
+
+            <button class="submit-btn" onclick="save()">저장하기</button>
         </div>
 
         <!-- Management List -->
-        <div class="admin-list">
-            <h2 style="margin-bottom: 2rem;">관리 목록 / MANAGEMENT LIST</h2>
+        <div class="admin-card">
+            <h2 class="form-title">아카이브 관리</h2>
             <div id="data-list">
-                <!-- Data will be loaded here -->
+                <!-- 리스트 로드 중 -->
             </div>
         </div>
-    </div>
+    </main>
+
+    <footer class="container" style="text-align: center; padding: 40px 0; color: #ccc;">
+        <a href="index.html" style="color: #666; text-decoration: none; font-weight: 700;">전시관으로 돌아가기</a>
+    </footer>
+
+    <div id="loader"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 3000; justify-content: center; align-items: center; font-weight: 700;">
+        처리 중...</div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const SUPABASE_URL = 'https://vwaidcntrtnixksyfuis.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_Pt1-wpYkluwuXx6vTLp2vg_gpuFlZlw';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        const ADMIN_PASSWORD = 'banana123';
+        const SECRET = 'banana123';
 
-        function previewImage(input) {
-            const preview = document.getElementById('preview-img');
+        function preview(input) {
+            const previewImg = document.getElementById('preview-img');
             const label = document.getElementById('file-label');
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
-                reader.onload = (e) => { preview.src = e.target.result; preview.style.display = 'block'; label.innerText = input.files[0].name; }
+                reader.onload = (e) => { previewImg.src = e.target.result; previewImg.style.display = 'block'; label.innerText = input.files[0].name; }
                 reader.readAsDataURL(input.files[0]);
             }
         }
 
-        async function loadList() {
+        async function load() {
             const { data, error } = await supabase.from('prompts').select('*').order('id', { ascending: false });
-            if (error) return console.error(error);
-
-            const listDiv = document.getElementById('data-list');
-            listDiv.innerHTML = data.map(p => `
-                <div class="admin-item">
-                    <div style="display: flex; gap: 2rem; align-items: center;">
-                        <img src="${p.image}" style="width: 50px; height: 50px; object-fit: cover;">
+            if (error) return;
+            const list = document.getElementById('data-list');
+            list.innerHTML = data.map(p => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid #f2f4f6;">
+                    <div style="display: flex; gap: 16px; align-items: center;">
+                        <img src="${p.image}" style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover;">
                         <div>
-                            <p style="font-weight: 700;">${p.title}</p>
-                            <p style="font-size: 0.7rem; color: #444;">${p.model}</p>
+                            <p style="font-weight: 700; font-size: 15px;">${p.title}</p>
+                            <p style="font-size: 13px; color: #666;">${p.model}</p>
                         </div>
                     </div>
-                    <button class="delete-btn" onclick="deleteItem(${p.id})">삭제 / DELETE</button>
+                    <button class="delete-btn" onclick="del(${p.id})">삭제</button>
                 </div>
             `).join('');
         }
 
-        async function deleteItem(id) {
-            const pw = prompt("SECRET KEY?");
-            if (pw !== ADMIN_PASSWORD) return alert("WRONG KEY.");
-            if (!confirm("진짜 삭제할까요? / DELETE?")) return;
-
-            document.getElementById('loader').style.display = 'flex';
-            const { error } = await supabase.from('prompts').delete().eq('id', id);
-
-            if (error) alert("ERROR: " + error.message);
-            else { alert("DELETED."); loadList(); }
-            document.getElementById('loader').style.display = 'none';
+        async function del(id) {
+            if (prompt("시크릿 키를 입력하세요") !== SECRET) return alert("암호가 틀렸습니다.");
+            if (!confirm("정말 이 프롬프트를 삭제하시겠습니까?")) return;
+            await supabase.from('prompts').delete().eq('id', id);
+            load();
         }
 
-        async function uploadAndSave() {
+        async function save() {
             const file = document.getElementById('p-file').files[0];
             const title = document.getElementById('p-title').value;
-            const prompt = document.getElementById('p-text').value;
+            const promptStr = document.getElementById('p-text').value;
             const model = document.getElementById('p-model').value;
             const tags = document.getElementById('p-tags').value.split(',').map(t => t.trim());
-            const password = document.getElementById('admin-pw').value;
+            const password = document.getElementById('pw').value;
 
-            if (password !== ADMIN_PASSWORD) return alert("WRONG KEY.");
-            if (!file || !title || !prompt) return alert("MISSING DATA.");
+            if (password !== SECRET) return alert("보안 암호가 일치하지 않습니다.");
+            if (!file || !title || !promptStr) return alert("이미지와 주요 항목을 모두 입력해주세요.");
 
             document.getElementById('loader').style.display = 'flex';
             try {
-                const fileName = `${Date.now()}_${file.name}`;
-                const { error: uploadError } = await supabase.storage.from('images').upload(`prompts/${fileName}`, file);
-                if (uploadError) throw uploadError;
-
-                const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(`prompts/${fileName}`);
-                const { error: insertError } = await supabase.from('prompts').insert([{ title, prompt, model, tags, image: publicUrl }]);
-                if (insertError) throw insertError;
-
-                alert("COMMIT SUCCESS!");
+                const name = `${Date.now()}_${file.name}`;
+                const { error: ue } = await supabase.storage.from('images').upload(`prompts/${name}`, file);
+                if (ue) throw ue;
+                const { data: { publicUrl: url } } = supabase.storage.from('images').getPublicUrl(`prompts/${name}`);
+                const { error: ie } = await supabase.from('prompts').insert([{ title, prompt: promptStr, model, tags, image: url }]);
+                if (ie) throw ie;
+                alert("성공적으로 등록되었습니다.");
                 location.reload();
-            } catch (err) { alert("ERROR: " + err.message); }
+            } catch (err) { alert(err.message); }
             finally { document.getElementById('loader').style.display = 'none'; }
         }
-
-        loadList();
+        load();
     </script>
 </body>
 

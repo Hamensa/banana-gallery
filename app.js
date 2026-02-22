@@ -1,100 +1,103 @@
-// --- CONFIGURATION ---
+// --- SUPABASE CONFIG ---
 const SUPABASE_URL = 'https://vwaidcntrtnixksyfuis.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_Pt1-wpYkluwuXx6vTLp2vg_gpuFlZlw';
 const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
-// --- CEO'S SELECTION (DUMMY CONTENT) ---
-const LOCAL_VAULT = [
+// --- PREMIUM SEED DATA (NANOBANANA EDITION) ---
+const SEED_DATA = [
     {
-        id: 'dummy-1',
-        title: "천재 바나나의 탄생 / GENESIS BANANA",
-        prompt: "A photorealistic yellow banana floating in a void of pure digital light, binary code raining in the background, neon yellow glow, 8k resolution, cinematic.",
+        title: "NANOBANANA - CYBERPUNK 2077",
+        prompt: "A photorealistic yellow banana embedded with glowing cyan and magenta fiber-optic scales, floating in a dark rainy Neo-Tokyo street, cinematic lighting, 8k resolution.",
         image: "https://images.unsplash.com/photo-1614728263952-84ea256f9679?q=80&w=1200&auto=format&fit=crop",
         model: "Midjourney v6",
         tags: ["Design", "3D"]
     },
     {
-        id: 'dummy-2',
-        title: "골든 본 / GOLDEN BONE",
-        prompt: "Stylized portrait of a dog wearing golden sunglasses and a banana-patterned silk shirt, high fashion editorial, minimalist black background.",
-        image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1200&auto=format&fit=crop",
+        title: "NANOBANANA - LIQUID GOLD",
+        prompt: "Surreal photography of a banana melting into a pool of liquid gold, high speed splash, clean white background, minimalist, product photography style.",
+        image: "https://images.unsplash.com/photo-1551024601-bec78aea704b?q=80&w=1200&auto=format&fit=crop",
         model: "DALL-E 3",
+        tags: ["Design"]
+    },
+    {
+        title: "NANOBANANA - ARCHITECTURAL VOID",
+        prompt: "A massive banana-shaped pavilion in a white brutalist desert, people walking around, sharp shadows, architectural photography, hyper-minimalism.",
+        image: "https://images.unsplash.com/photo-1481349518771-20055b2a7b24?q=80&w=1200&auto=format&fit=crop",
+        model: "Flux.1",
+        tags: ["3D", "Design"]
+    },
+    {
+        title: "NANOBANANA - VOGUE PORTRAIT",
+        prompt: "High fashion editorial portrait, model's face partially covered by translucent banana-patterned silk, soft studio lighting, pastel yellow tones.",
+        image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1200&auto=format&fit=crop",
+        model: "Midjourney v6",
         tags: ["Portrait"]
     },
     {
-        id: 'dummy-3',
-        title: "네온 정글 / NEON JUNGLE",
-        prompt: "Surreal jungle at night, trees are made of glowing yellow bananas, exotic birds with golden feathers, bioluminescent plants, dreamlike atmosphere.",
+        title: "NANOBANANA - DIGITAL FRAGMENT",
+        prompt: "A 3D isometric render of a banana made of transparent ice with frozen electronics inside, pastel purple background, cute aesthetic, Octane render.",
         image: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1200&auto=format&fit=crop",
-        model: "Flux.1",
-        tags: ["3D", "Design"]
+        model: "Stable Diffusion XL",
+        tags: ["3D"]
     }
 ];
 
-let masterPrompts = [];
+let database = [];
 
-async function init() {
-    console.log("💼 CEO/CTO ENGINE STARTING...");
+async function startup() {
+    console.log("🍌 BANANA ENGINE IGNITION...");
     const gallery = document.getElementById('gallery');
-    gallery.innerHTML = '<p class="subtitle" style="grid-column: 1/-1;">데이터를 감싱 중입니다... / SYNCING DATA...</p>';
+    gallery.innerHTML = '<p style="padding: 100px; text-align: center; color: #666;">아카이브를 동기화 중입니다...</p>';
 
     try {
         if (supabase) {
             const { data, error } = await supabase.from('prompts').select('*').order('id', { ascending: false });
             if (!error && data && data.length > 0) {
-                masterPrompts = data;
-                console.log("✅ CLOUD SYNC SUCCESS.");
+                database = data;
             } else {
-                console.warn("⚠️ CLOUD EMPTY. LOADING VAULT.");
-                masterPrompts = LOCAL_VAULT;
+                database = SEED_DATA;
             }
         } else {
-            masterPrompts = LOCAL_VAULT;
+            database = SEED_DATA;
         }
-
-        render(masterPrompts);
-        setupSearch();
-        setupFilters();
-    } catch (err) {
-        console.error("❌ ENGINE FAILURE:", err);
-        masterPrompts = LOCAL_VAULT;
-        render(masterPrompts);
+        render(database);
+        initUI();
+    } catch (e) {
+        database = SEED_DATA;
+        render(database);
     }
 }
 
-function render(prompts) {
+function render(data) {
     const gallery = document.getElementById('gallery');
-    if (prompts.length === 0) {
-        gallery.innerHTML = '<p class="subtitle" style="grid-column: 1/-1;">검색 결과가 없습니다. / NO RESULTS.</p>';
+    if (data.length === 0) {
+        gallery.innerHTML = '<p style="padding: 100px; text-align: center; color: #666;">검색 결과가 없습니다.</p>';
         return;
     }
 
-    gallery.innerHTML = prompts.map(p => `
-        <div class="card" onclick="openModal('${btoa(unescape(encodeURIComponent(JSON.stringify(p))))}')">
+    gallery.innerHTML = data.map(p => `
+        <div class="card" onclick="showDetail('${btoa(unescape(encodeURIComponent(JSON.stringify(p))))}')">
             <div class="card-img-wrapper">
                 <img src="${p.image}" alt="${p.title}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1481349518771-20055b2a7b24?q=80&w=800&auto=format&fit=crop'">
             </div>
             <div class="card-info">
                 <h3>${p.title}</h3>
-                <span class="model-tag">${p.model}</span>
+                <p>${p.model}</p>
             </div>
         </div>
     `).join('');
 }
 
-function setupSearch() {
+function initUI() {
+    // Search
     const search = document.getElementById('search-input');
     search.addEventListener('input', (e) => {
         const query = e.target.value.toLowerCase();
-        const filtered = masterPrompts.filter(p =>
-            p.title.toLowerCase().includes(query) ||
-            p.prompt.toLowerCase().includes(query)
-        );
+        const filtered = database.filter(p => p.title.toLowerCase().includes(query) || p.prompt.toLowerCase().includes(query));
         render(filtered);
     });
-}
 
-function setupFilters() {
+    // Filters
     const btns = document.querySelectorAll('.filter-btn');
     btns.forEach(btn => {
         btn.onclick = () => {
@@ -102,22 +105,18 @@ function setupFilters() {
             btns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
 
-            if (tag === 'all') {
-                render(masterPrompts);
-            } else {
-                const filtered = masterPrompts.filter(p =>
-                    p.tags && p.tags.some(t => t.toLowerCase() === tag.toLowerCase())
-                );
+            if (tag === 'all') render(database);
+            else {
+                const filtered = database.filter(p => p.tags && p.tags.some(t => t.toLowerCase() === tag.toLowerCase()));
                 render(filtered);
             }
         };
     });
 }
 
-function openModal(encoded) {
+function showDetail(encoded) {
     const p = JSON.parse(decodeURIComponent(escape(atob(encoded))));
     const modal = document.getElementById('modal');
-
     document.getElementById('modal-image').src = p.image;
     document.getElementById('modal-title').innerText = p.title;
     document.getElementById('modal-model').innerText = p.model;
@@ -126,11 +125,13 @@ function openModal(encoded) {
     document.getElementById('copy-btn').onclick = () => {
         navigator.clipboard.writeText(p.prompt);
         const btn = document.getElementById('copy-btn');
-        btn.innerText = "복사 완료! / COPIED";
+        btn.innerText = "복사되었습니다";
         btn.style.background = "#FFE135";
+        btn.style.color = "#000";
         setTimeout(() => {
-            btn.innerText = "프롬프트 복사 / COPY PROMPT";
-            btn.style.background = "#FFFFFF";
+            btn.innerText = "프롬프트 복사";
+            btn.style.background = "#3182f6";
+            btn.style.color = "#fff";
         }, 2000);
     };
 
@@ -143,4 +144,4 @@ document.getElementById('modal-close').onclick = () => {
     document.body.style.overflow = "auto";
 };
 
-init();
+startup();

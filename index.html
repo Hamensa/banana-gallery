@@ -4,64 +4,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NANOBANANA | 프리미엄 프롬프트 전시관</title>
+    <title>바나나 갤러리 | Banana Gallery</title>
     <link rel="stylesheet" href="style.css">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;700;900&family=Noto+Sans+KR:wght@100;300;400;700&family=Syncopate:wght@700&display=swap"
-        rel="stylesheet">
 </head>
 
 <body>
-    <header>
-        <div class="container">
-            <h1 id="hero-title">NANOBANANA</h1>
-            <p class="subtitle">PREMIUM AI PROMPT CURATION</p>
-            <p class="kor-subtitle">바나나 갤러리 : 당신을 위한 천재적 프롬프트</p>
-        </div>
+    <header class="container">
+        <h1>Banana Gallery</h1>
+        <p class="subtitle">프리미엄 AI 프롬프트 큐레이션</p>
     </header>
 
-    <div class="sticky-nav">
-        <div class="container nav-box">
-            <nav class="filter-bar">
-                <button class="filter-btn active" data-tag="all">전체 / ALL</button>
-                <button class="filter-btn" data-tag="Design">디자인 / DESIGN</button>
-                <button class="filter-btn" data-tag="Portrait">인물 / PORTRAIT</button>
-                <button class="filter-btn" data-tag="3D">3D 공간</button>
+    <div class="nav-box">
+        <div class="container nav-content">
+            <nav class="filter-group">
+                <button class="filter-btn active" data-tag="all">전체</button>
+                <button class="filter-btn" data-tag="Design">디자인</button>
+                <button class="filter-btn" data-tag="Portrait">인물</button>
+                <button class="filter-btn" data-tag="3D">3D</button>
             </nav>
-            <div class="search-box">
-                <input type="text" id="search-input" placeholder="검색어를 입력하세요... / SEARCH PROMPT">
+            <div class="search-input-wrapper">
+                <input type="text" id="search-input" placeholder="관심 있는 프롬프트 검색">
             </div>
         </div>
     </div>
 
     <main class="container">
         <div id="gallery" class="grid">
-            <!-- 콘텐츠가 로드되는 중입니다 -->
+            <!-- 콘텐츠 로드 중... -->
         </div>
     </main>
 
-    <footer>
-        <div class="container">
-            <p>&copy; 2024 NANOBANANA STUDIO. ALL RIGHTS RESERVED.</p>
-            <p style="font-size: 0.7rem; color: #444; margin-top: 1rem;">본 서비스는 한 명의 천재적 디자이너를 위해 제작되었습니다.</p>
-            <a href="admin.html" class="admin-link">CONSOLE</a>
-        </div>
+    <footer class="container"
+        style="text-align: center; padding: 60px 0; border-top: 1px solid #e5e8eb; color: #666; font-size: 14px;">
+        <p>&copy; 2024 Banana Gallery Studio. All rights reserved.</p>
+        <a href="admin.html"
+            style="margin-top: 16px; display: inline-block; color: #ccc; text-decoration: none; font-size: 11px;">관리자
+            콘솔</a>
     </footer>
 
     <!-- Modal -->
     <div id="modal" class="modal">
-        <span class="close" id="modal-close">&times;</span>
         <div class="modal-content">
             <div class="modal-left">
                 <img id="modal-image" src="" alt="">
             </div>
             <div class="modal-right">
-                <p id="modal-model" class="model-tag"></p>
-                <h2 id="modal-title"></h2>
-                <div class="modal-prompt-box">
-                    <pre id="modal-prompt"></pre>
+                <h2 id="modal-title" style="font-size: 32px; margin-bottom: 12px;"></h2>
+                <p id="modal-model" style="color: #3182f6; font-weight: 700; margin-bottom: 24px;"></p>
+                <div style="background: #f2f4f6; padding: 24px; border-radius: 16px; margin-bottom: 32px;">
+                    <p id="modal-prompt" style="font-size: 16px; color: #4e5968; line-height: 1.6;"></p>
                 </div>
-                <button id="copy-btn" class="copy-btn">프롬프트 복사 / COPY PROMPT</button>
+                <button id="copy-btn" class="submit-btn">프롬프트 복사</button>
+                <span id="modal-close"
+                    style="position: absolute; top: 24px; right: 24px; cursor: pointer; font-size: 24px; color: #ccc;">&times;</span>
             </div>
         </div>
     </div>
