@@ -1,11 +1,12 @@
 // --- SUPABASE CONFIG ---
-const SUPABASE_URL = 'https://vwaidcntrtnixksyfuis.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_Pt1-wpYkluwuXx6vTLp2vg_gpuFlZlw';
-let supabase = null;
+window.SUPABASE_URL = 'https://vwaidcntrtnixksyfuis.supabase.co';
+window.SUPABASE_ANON_KEY = 'sb_publishable_Pt1-wpYkluwuXx6vTLp2vg_gpuFlZlw';
+window.appSupabase = null;
+
 try {
     if (window.supabase) {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        console.log("✅ Supabase initialized successfully");
+        window.appSupabase = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+        console.log("✅ Supabase initialized successfully in app.js");
     } else {
         console.warn("⚠️ Supabase script not found in window");
     }
@@ -98,8 +99,8 @@ async function startup() {
     }
 
     try {
-        if (supabase) {
-            const { data, error } = await supabase.from('prompts').select('*').order('id', { ascending: false });
+        if (window.appSupabase) {
+            const { data, error } = await window.appSupabase.from('prompts').select('*').order('id', { ascending: false });
             if (!error && data && data.length > 0) {
                 console.log(`✅ Loaded ${data.length} prompts from Supabase`);
                 // Append seed data for a rich initial experience
@@ -215,17 +216,23 @@ function initUI() {
 }
 
 function applyFilter(tag) {
+    console.log("Filtering by tag:", tag);
     if (!tag || tag === 'all') {
         render(database);
-    } else {
-        const filtered = database.filter(p => {
-            if (!p.tags) return false;
-            // Handle both array format and comma-separated string format
-            const tagArray = Array.isArray(p.tags) ? p.tags : String(p.tags).split(',');
-            return tagArray.some(t => t.trim().toLowerCase() === tag.toLowerCase());
-        });
-        render(filtered);
+        return;
     }
+
+    const filtered = database.filter(p => {
+        // Tag array check (for newer items with precise db schema)
+        if (Array.isArray(p.tags)) {
+            return p.tags.some(t => t.toLowerCase() === tag.toLowerCase());
+        }
+        // String check (for older items or seed data)
+        return p.tags && p.tags.includes(tag);
+    });
+
+    console.log("Filtered count:", filtered.length);
+    render(filtered);
 }
 
 function showDetail(encoded) {
