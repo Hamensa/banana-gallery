@@ -1,7 +1,6 @@
 // --- SUPABASE CONFIG ---
 const SUPABASE_URL = 'https://vwaidcntrtnixksyfuis.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_Pt1-wpYkluwuXx6vTLp2vg_gpuFlZlw';
-const Math = window.Math;
 const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
 // --- PREMIUM MASSIVE SEED DATA (NANOBANANA EDITION) ---
