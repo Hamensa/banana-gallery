@@ -3,142 +3,144 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NanoBanana Admin Panel</title>
+    <title>NANOBANANA | MANAGEMENT CONSOLE</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .admin-form {
-            max-width: 600px;
-            margin: 4rem auto;
-            background: #111;
-            padding: 2rem;
-            border: 1px solid var(--accent);
-        }
-
-        input,
-        textarea,
-        select {
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            background: #222;
-            border: 1px solid #333;
-            color: #fff;
-        }
-
-        .btn-row {
-            display: flex;
-            gap: 1rem;
-        }
-
-        #json-preview {
-            background: #000;
-            padding: 1rem;
-            margin-top: 2rem;
-            border: 1px dashed #666;
-            font-family: monospace;
-            font-size: 0.8rem;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Syncopate', sans-serif;
+            letter-spacing: 0.5em;
         }
     </style>
 </head>
 
-<body>
-    <header class="container">
-        <h1>ADMIN PANEL</h1>
-        <p>Add new prompts and update your database.</p>
-    </header>
+<body style="background: #000;">
+    <div id="loader" class="loading-overlay">PROCESSING...</div>
 
-    <main class="container">
-        <div class="admin-form">
-            <h2>Add New Prompt</h2>
-            <input type="text" id="p-title" placeholder="Prompt Title (e.g. Cyberpunk UI)">
-            <textarea id="p-text" placeholder="The actual prompt text..." rows="6"></textarea>
-            <input type="text" id="p-image" placeholder="Image URL (e.g. https://...)">
-            <select id="p-model">
-                <option value="NanoBanana">NanoBanana</option>
-                <option value="ChatGPT (DALLE-3)">ChatGPT (DALLE-3)</option>
-                <option value="Midjourney">Midjourney</option>
-            </select>
-            <input type="text" id="p-tags" placeholder="Tags (comma separated: Design, 3D, UI)">
+    <div class="admin-container">
+        <h1 style="font-size: 3rem; margin-bottom: 3rem;">CONSOLE</h1>
 
+        <!-- Upload Form -->
+        <div style="background: #050505; padding: 3rem; border: 1px solid #111; margin-bottom: 5rem;">
+            <h2 style="margin-bottom: 2rem;">신규 등록 / NEW REGISTRATION</h2>
             <div class="form-group">
-                <label>관리자 비밀번호</label>
-                <input type="password" id="admin-pw" placeholder="비밀번호를 입력하세요">
+                <div class="file-input-wrapper" onclick="document.getElementById('p-file').click()">
+                    <span id="file-label">이미지 파일 선택 / SELECT IMAGE</span>
+                    <input type="file" id="p-file" style="display: none;" accept="image/*"
+                        onchange="previewImage(this)">
+                </div>
+                <img id="preview-img" style="width: 100%; display: none; margin-bottom: 2rem;">
             </div>
-            <div class="btn-row">
-                <button type="button" class="copy-btn" onclick="addPrompt()">ADD TO LIST</button>
-                <button type="button" class="copy-btn" style="background: #444;" onclick="downloadJSON()">DOWNLOAD JS
-                    FILE</button>
+            <input type="text" id="p-title" placeholder="제목 / TITLE">
+            <textarea id="p-text" placeholder="프롬프트 내용 / PROMPT" rows="5"></textarea>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                <select id="p-model">
+                    <option value="Midjourney v6">Midjourney v6</option>
+                    <option value="DALL-E 3">DALL-E 3</option>
+                    <option value="Stable Diffusion XL">Stable Diffusion XL</option>
+                    <option value="Flux.1">Flux.1</option>
+                </select>
+                <input type="text" id="p-tags" placeholder="태그 (쉼표로 구분: Design, 3D)">
             </div>
+            <input type="password" id="admin-pw" placeholder="SECRET KEY">
+            <button class="copy-btn" style="width: 100%;" onclick="uploadAndSave()">데이터베이스 반영 / COMMIT</button>
         </div>
 
-        <div id="json-output" class="container">
-            <h3>Current JSON Payload</h3>
-            <pre id="json-preview"></pre>
+        <!-- Management List -->
+        <div class="admin-list">
+            <h2 style="margin-bottom: 2rem;">관리 목록 / MANAGEMENT LIST</h2>
+            <div id="data-list">
+                <!-- Data will be loaded here -->
+            </div>
         </div>
-    </main>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // Supabase Configuration - 이곳에 실제 값을 입력하세요!
         const SUPABASE_URL = 'https://vwaidcntrtnixksyfuis.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_Pt1-wpYkluwuXx6vTLp2vg_gpuFlZlw';
-        // 보안을 위한 간단 권한 체크 (원하시는 비밀번호로 바꾸세요!)
-        const ADMIN_PASSWORD = 'banana123';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const ADMIN_PASSWORD = 'banana123';
 
-        let promptList = [];
-
-        // DB에서 최신 데이터 가져오기
-        async function fetchFromDB() {
-            const { data, error } = await supabase
-                .from('prompts')
-                .select('*')
-                .order('id', { ascending: false });
-
-            if (!error) {
-                promptList = data;
-                updatePreview();
+        function previewImage(input) {
+            const preview = document.getElementById('preview-img');
+            const label = document.getElementById('file-label');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => { preview.src = e.target.result; preview.style.display = 'block'; label.innerText = input.files[0].name; }
+                reader.readAsDataURL(input.files[0]);
             }
         }
-        fetchFromDB();
 
-        async function addPrompt() {
+        async function loadList() {
+            const { data, error } = await supabase.from('prompts').select('*').order('id', { ascending: false });
+            if (error) return console.error(error);
+
+            const listDiv = document.getElementById('data-list');
+            listDiv.innerHTML = data.map(p => `
+                <div class="admin-item">
+                    <div style="display: flex; gap: 2rem; align-items: center;">
+                        <img src="${p.image}" style="width: 50px; height: 50px; object-fit: cover;">
+                        <div>
+                            <p style="font-weight: 700;">${p.title}</p>
+                            <p style="font-size: 0.7rem; color: #444;">${p.model}</p>
+                        </div>
+                    </div>
+                    <button class="delete-btn" onclick="deleteItem(${p.id})">삭제 / DELETE</button>
+                </div>
+            `).join('');
+        }
+
+        async function deleteItem(id) {
+            const pw = prompt("SECRET KEY?");
+            if (pw !== ADMIN_PASSWORD) return alert("WRONG KEY.");
+            if (!confirm("진짜 삭제할까요? / DELETE?")) return;
+
+            document.getElementById('loader').style.display = 'flex';
+            const { error } = await supabase.from('prompts').delete().eq('id', id);
+
+            if (error) alert("ERROR: " + error.message);
+            else { alert("DELETED."); loadList(); }
+            document.getElementById('loader').style.display = 'none';
+        }
+
+        async function uploadAndSave() {
+            const file = document.getElementById('p-file').files[0];
             const title = document.getElementById('p-title').value;
             const prompt = document.getElementById('p-text').value;
-            const image = document.getElementById('p-image').value;
             const model = document.getElementById('p-model').value;
             const tags = document.getElementById('p-tags').value.split(',').map(t => t.trim());
-            const enteredPw = document.getElementById('admin-pw').value;
+            const password = document.getElementById('admin-pw').value;
 
-            if (enteredPw !== ADMIN_PASSWORD) {
-                alert("관리자 비밀번호가 틀렸습니다!");
-                return;
-            }
+            if (password !== ADMIN_PASSWORD) return alert("WRONG KEY.");
+            if (!file || !title || !prompt) return alert("MISSING DATA.");
 
-            if (!title || !prompt) {
-                alert("제목과 내용은 필수입니다!");
-                return;
-            }
+            document.getElementById('loader').style.display = 'flex';
+            try {
+                const fileName = `${Date.now()}_${file.name}`;
+                const { error: uploadError } = await supabase.storage.from('images').upload(`prompts/${fileName}`, file);
+                if (uploadError) throw uploadError;
 
-            const { data, error } = await supabase
-                .from('prompts')
-                .insert([
-                    { title, prompt, image, model, tags }
-                ]);
+                const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(`prompts/${fileName}`);
+                const { error: insertError } = await supabase.from('prompts').insert([{ title, prompt, model, tags, image: publicUrl }]);
+                if (insertError) throw insertError;
 
-            if (error) {
-                console.error("Error saving:", error);
-                alert("저장 실패: " + error.message);
-            } else {
-                alert("성공적으로 DB에 저장되었습니다!");
-                fetchFromDB(); // 리스트 갱신
-            }
+                alert("COMMIT SUCCESS!");
+                location.reload();
+            } catch (err) { alert("ERROR: " + err.message); }
+            finally { document.getElementById('loader').style.display = 'none'; }
         }
 
-        function updatePreview() {
-            document.getElementById('json-preview').innerText = JSON.stringify(promptList, null, 2);
-        }
+        loadList();
     </script>
 </body>
 

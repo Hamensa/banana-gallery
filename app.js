@@ -1,82 +1,123 @@
-// Supabase Configuration - 이곳에 실제 값을 입력하세요!
+// --- CONFIGURATION ---
 const SUPABASE_URL = 'https://vwaidcntrtnixksyfuis.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_Pt1-wpYkluwuXx6vTLp2vg_gpuFlZlw';
 const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
-async function loadPrompts() {
+// --- CEO'S SELECTION (DUMMY CONTENT) ---
+const LOCAL_VAULT = [
+    {
+        id: 'dummy-1',
+        title: "천재 바나나의 탄생 / GENESIS BANANA",
+        prompt: "A photorealistic yellow banana floating in a void of pure digital light, binary code raining in the background, neon yellow glow, 8k resolution, cinematic.",
+        image: "https://images.unsplash.com/photo-1614728263952-84ea256f9679?q=80&w=1200&auto=format&fit=crop",
+        model: "Midjourney v6",
+        tags: ["Design", "3D"]
+    },
+    {
+        id: 'dummy-2',
+        title: "골든 본 / GOLDEN BONE",
+        prompt: "Stylized portrait of a dog wearing golden sunglasses and a banana-patterned silk shirt, high fashion editorial, minimalist black background.",
+        image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1200&auto=format&fit=crop",
+        model: "DALL-E 3",
+        tags: ["Portrait"]
+    },
+    {
+        id: 'dummy-3',
+        title: "네온 정글 / NEON JUNGLE",
+        prompt: "Surreal jungle at night, trees are made of glowing yellow bananas, exotic birds with golden feathers, bioluminescent plants, dreamlike atmosphere.",
+        image: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1200&auto=format&fit=crop",
+        model: "Flux.1",
+        tags: ["3D", "Design"]
+    }
+];
+
+let masterPrompts = [];
+
+async function init() {
+    console.log("💼 CEO/CTO ENGINE STARTING...");
+    const gallery = document.getElementById('gallery');
+    gallery.innerHTML = '<p class="subtitle" style="grid-column: 1/-1;">데이터를 감싱 중입니다... / SYNCING DATA...</p>';
+
     try {
-        if (!supabase) {
-            console.error("Supabase SDK not loaded");
-            return;
+        if (supabase) {
+            const { data, error } = await supabase.from('prompts').select('*').order('id', { ascending: false });
+            if (!error && data && data.length > 0) {
+                masterPrompts = data;
+                console.log("✅ CLOUD SYNC SUCCESS.");
+            } else {
+                console.warn("⚠️ CLOUD EMPTY. LOADING VAULT.");
+                masterPrompts = LOCAL_VAULT;
+            }
+        } else {
+            masterPrompts = LOCAL_VAULT;
         }
 
-        const { data, error } = await supabase
-            .from('prompts')
-            .select('*')
-            .order('id', { ascending: false });
-
-        if (error) throw error;
-        renderGallery(data);
-        setupFilters(data);
-    } catch (e) {
-        console.error("Failed to load prompts from Supabase:", e);
-        // Fallback or error message for user
+        render(masterPrompts);
+        setupSearch();
+        setupFilters();
+    } catch (err) {
+        console.error("❌ ENGINE FAILURE:", err);
+        masterPrompts = LOCAL_VAULT;
+        render(masterPrompts);
     }
 }
 
-function renderGallery(prompts) {
+function render(prompts) {
     const gallery = document.getElementById('gallery');
-    if (!gallery) return;
-
     if (prompts.length === 0) {
-        gallery.innerHTML = '<p class="subtitle" style="grid-column: 1/-1; text-align: center; margin-top: 4rem;">데이터를 불러오는 중이거나 등록된 프롬프트가 없습니다.</p>';
+        gallery.innerHTML = '<p class="subtitle" style="grid-column: 1/-1;">검색 결과가 없습니다. / NO RESULTS.</p>';
         return;
     }
 
-    gallery.innerHTML = prompts.map((p, index) => `
-        <div class="card reveal" style="transition-delay: ${index * 0.1}s" onclick="openModal(${JSON.stringify(p).replace(/"/g, '&quot;')})">
-            <img src="${p.image}" alt="${p.title}" loading="lazy" onerror="this.src='https://picsum.photos/seed/error/800/1000'">
+    gallery.innerHTML = prompts.map(p => `
+        <div class="card" onclick="openModal('${btoa(unescape(encodeURIComponent(JSON.stringify(p))))}')">
+            <div class="card-img-wrapper">
+                <img src="${p.image}" alt="${p.title}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1481349518771-20055b2a7b24?q=80&w=800&auto=format&fit=crop'">
+            </div>
             <div class="card-info">
-                <p>${p.model}</p>
                 <h3>${p.title}</h3>
+                <span class="model-tag">${p.model}</span>
             </div>
         </div>
     `).join('');
+}
 
-    // Trigger reveal animation with a small delay to ensure DOM is updated
-    requestAnimationFrame(() => {
-        setTimeout(() => {
-            document.querySelectorAll('.card.reveal').forEach(card => {
-                card.style.opacity = "1";
-                card.style.transform = "translateY(0)";
-            });
-        }, 50);
+function setupSearch() {
+    const search = document.getElementById('search-input');
+    search.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        const filtered = masterPrompts.filter(p =>
+            p.title.toLowerCase().includes(query) ||
+            p.prompt.toLowerCase().includes(query)
+        );
+        render(filtered);
     });
 }
 
-function setupFilters(prompts) {
-    const filterBtns = document.querySelectorAll('.filter-btn');
-    filterBtns.forEach(btn => {
+function setupFilters() {
+    const btns = document.querySelectorAll('.filter-btn');
+    btns.forEach(btn => {
         btn.onclick = () => {
-            const tag = btn.dataset.tag.toLowerCase();
-            document.querySelector('.filter-btn.active').classList.remove('active');
+            const tag = btn.dataset.tag;
+            btns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
 
             if (tag === 'all') {
-                renderGallery(prompts);
+                render(masterPrompts);
             } else {
-                // 대소문자 구분 없이 똑똑하게 필터링
-                const filtered = prompts.filter(p =>
-                    p.tags && p.tags.some(t => t.toLowerCase() === tag)
+                const filtered = masterPrompts.filter(p =>
+                    p.tags && p.tags.some(t => t.toLowerCase() === tag.toLowerCase())
                 );
-                renderGallery(filtered);
+                render(filtered);
             }
         };
     });
 }
 
-function openModal(p) {
+function openModal(encoded) {
+    const p = JSON.parse(decodeURIComponent(escape(atob(encoded))));
     const modal = document.getElementById('modal');
+
     document.getElementById('modal-image').src = p.image;
     document.getElementById('modal-title').innerText = p.title;
     document.getElementById('modal-model').innerText = p.model;
@@ -85,25 +126,21 @@ function openModal(p) {
     document.getElementById('copy-btn').onclick = () => {
         navigator.clipboard.writeText(p.prompt);
         const btn = document.getElementById('copy-btn');
-        btn.innerText = "COPIED!";
-        btn.style.background = "#00ff00";
+        btn.innerText = "복사 완료! / COPIED";
+        btn.style.background = "#FFE135";
         setTimeout(() => {
-            btn.innerText = "COPY PROMPT";
-            btn.style.background = "var(--accent)";
+            btn.innerText = "프롬프트 복사 / COPY PROMPT";
+            btn.style.background = "#FFFFFF";
         }, 2000);
     };
 
     modal.style.display = "block";
+    document.body.style.overflow = "hidden";
 }
 
-document.querySelector('.close').onclick = () => {
+document.getElementById('modal-close').onclick = () => {
     document.getElementById('modal').style.display = "none";
+    document.body.style.overflow = "auto";
 };
 
-window.onclick = (event) => {
-    if (event.target == document.getElementById('modal')) {
-        document.getElementById('modal').style.display = "none";
-    }
-};
-
-loadPrompts();
+init();
