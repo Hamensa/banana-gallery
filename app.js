@@ -131,9 +131,9 @@ function render(data) {
 
     if (!data || data.length === 0) {
         gallery.innerHTML = `
-            <div style="grid-column: 1/-1; padding: 120px 20px; text-align: center; border-radius: 20px; background: #f9fafb; border: 1px dashed #ced4da;">
-                <h3 style="font-size: 24px; color: #191f28; margin-bottom: 8px;">검색 결과가 없습니다</h3>
-                <p style="color: #6b7280; font-size: 16px;">다른 키워드나 태그로 검색해 보세요.</p>
+            <div id="no-results">
+                <h3>검색 결과가 없습니다</h3>
+                <p>다른 키워드나 태그로 검색해 보세요.</p>
             </div>
         `;
         return;
@@ -150,10 +150,8 @@ function render(data) {
             </div>
             <div class="card-info">
                 <h3>${p.title}</h3>
-                <p>${p.model}</p>
             </div>
-        </div>
-        `;
+        </div>`;
     }).join('');
 }
 
@@ -200,18 +198,7 @@ function initUI() {
         });
     }
 
-    // Mobile Search Toggle
-    const searchToggleBtn = document.getElementById('search-toggle-btn');
-    const searchWrapper = document.querySelector('.search-input-wrapper');
-    if (searchToggleBtn && searchWrapper) {
-        searchToggleBtn.onclick = () => {
-            searchWrapper.classList.toggle('open');
-            if (searchWrapper.classList.contains('open')) {
-                const searchInput = document.getElementById('search-input');
-                if (searchInput) searchInput.focus();
-            }
-        };
-    }
+    // Mobile Search Toggle removed - search is always visible
 
     // Close modal when clicking X
     const modalCloseBtn = document.getElementById('modal-close');
@@ -261,17 +248,31 @@ function showDetail(encoded) {
     if (!modal) return;
 
     document.getElementById('modal-image').src = p.image;
-    document.getElementById('modal-title').innerText = p.title;
-    document.getElementById('modal-model').innerText = p.model;
-    document.getElementById('modal-prompt').innerText = p.prompt;
+    const titleEl = document.getElementById('modal-title');
+    if (titleEl) titleEl.innerText = p.title;
+    const promptEl = document.getElementById('modal-prompt');
+    const tagsWrapper = document.getElementById('modal-tags-wrapper');
+    if (promptEl) promptEl.innerText = p.prompt;
+
+    const tagsContainer = document.getElementById('modal-tags');
+    if (tagsContainer) {
+        // Clear existing tags
+        while (tagsContainer.firstChild) {
+            tagsContainer.removeChild(tagsContainer.firstChild);
+        }
+        // Add new tags using DOM manipulation
+        if (p.tags && Array.isArray(p.tags) && p.tags.length > 0) {
+            p.tags.forEach(tagText => {
+                const span = document.createElement('span');
+                span.className = 'modal-tag';
+                span.innerText = tagText;
+                tagsContainer.appendChild(span);
+            });
+        }
+    }
 
     const copyBtn = document.getElementById('copy-btn');
     if (copyBtn) {
-        // Reset button state whenever modal opens
-        copyBtn.innerText = "프롬프트 복사";
-        copyBtn.style.background = "#3182f6";
-        copyBtn.style.color = "#fff";
-
         copyBtn.onclick = () => {
             navigator.clipboard.writeText(p.prompt).then(() => {
                 showToast("프롬프트가 복사되었습니다!");
@@ -282,8 +283,10 @@ function showDetail(encoded) {
         };
     }
 
-    // Set display flex to keep modal layout structure
     modal.style.display = "flex";
+    // Trigger reflow for animation
+    void modal.offsetWidth;
+    modal.classList.add('show');
     document.body.style.overflow = "hidden";
 }
 
@@ -311,8 +314,11 @@ function showToast(msg) {
 function closeModal() {
     const modal = document.getElementById('modal');
     if (modal) {
-        modal.style.display = "none";
-        document.body.style.overflow = "auto";
+        modal.classList.remove('show');
+        setTimeout(() => {
+            modal.style.display = "none";
+            document.body.style.overflow = "auto";
+        }, 400); // Wait for transition
     }
 }
 
